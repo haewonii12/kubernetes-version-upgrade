@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "metadata": { "name": "coredns", "namespace": "kube-system" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "coredns", "image": "registry.k8s.io/coredns/coredns:v1.11.3" }] } } }
+    },
+    {
+      "metadata": { "name": "metrics-server", "namespace": "kube-system" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "metrics-server", "image": "registry.k8s.io/metrics-server/metrics-server:v0.7.2" }] } } }
+    },
+    {
+      "metadata": { "name": "calico-kube-controllers", "namespace": "kube-system" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "calico-kube-controllers", "image": "docker.io/calico/kube-controllers:v3.30.7" }] } } }
+    },
+    {
+      "metadata": { "name": "cert-manager", "namespace": "cert-manager" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "cert-manager-controller", "image": "quay.io/jetstack/cert-manager-controller:v1.17.1" }] } } }
+    },
+    {
+      "metadata": { "name": "cert-manager-webhook", "namespace": "cert-manager" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "cert-manager-webhook", "image": "quay.io/jetstack/cert-manager-webhook:v1.17.1" }] } } }
+    },
+    {
+      "metadata": { "name": "cert-manager-cainjector", "namespace": "cert-manager" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "cert-manager-cainjector", "image": "quay.io/jetstack/cert-manager-cainjector:v1.17.1" }] } } }
+    },
+    {
+      "metadata": { "name": "ingress-nginx-controller", "namespace": "ingress-nginx" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "controller", "image": "registry.k8s.io/ingress-nginx/controller:v1.12.0" }] } } }
+    },
+    {
+      "metadata": { "name": "argocd-server", "namespace": "argocd" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "argocd-server", "image": "quay.io/argoproj/argocd:v2.13.2" }] } } }
+    },
+    {
+      "metadata": { "name": "argocd-repo-server", "namespace": "argocd" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "argocd-repo-server", "image": "quay.io/argoproj/argocd:v2.13.2" }] } } }
+    },
+    {
+      "metadata": { "name": "argocd-applicationset-controller", "namespace": "argocd" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "argocd-applicationset-controller", "image": "quay.io/argoproj/argocd:v2.13.2" }] } } }
+    },
+    {
+      "metadata": { "name": "kube-state-metrics", "namespace": "monitoring" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "kube-state-metrics", "image": "registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.13.0" }] } } }
+    },
+    {
+      "metadata": { "name": "prometheus-operator", "namespace": "monitoring" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "prometheus-operator", "image": "quay.io/prometheus-operator/prometheus-operator:v0.79.2" }] } } }
+    }
+  ]
+}

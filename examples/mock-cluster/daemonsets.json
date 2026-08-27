@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "metadata": { "name": "kube-proxy", "namespace": "kube-system" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "kube-proxy", "image": "registry.k8s.io/kube-proxy:v1.32.13" }] } } }
+    },
+    {
+      "metadata": { "name": "calico-node", "namespace": "kube-system" },
+      "spec": { "template": { "spec": { "containers": [{ "name": "calico-node", "image": "docker.io/calico/node:v3.30.7" }] } } }
+    }
+  ]
+}

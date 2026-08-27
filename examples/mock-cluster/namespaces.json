@@ -1,0 +1,12 @@
+{
+  "items": [
+    { "metadata": { "name": "default" } },
+    { "metadata": { "name": "kube-system" } },
+    { "metadata": { "name": "kube-public" } },
+    { "metadata": { "name": "kube-node-lease" } },
+    { "metadata": { "name": "cert-manager" } },
+    { "metadata": { "name": "ingress-nginx" } },
+    { "metadata": { "name": "argocd" } },
+    { "metadata": { "name": "monitoring" } }
+  ]
+}

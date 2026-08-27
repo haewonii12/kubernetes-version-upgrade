@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "metadata": {
+        "name": "sh.helm.release.v1.cert-manager.v1",
+        "namespace": "cert-manager",
+        "labels": { "owner": "helm", "name": "cert-manager", "status": "deployed" }
+      },
+      "type": "helm.sh/release.v1"
+    },
+    {
+      "metadata": {
+        "name": "sh.helm.release.v1.ingress-nginx.v1",
+        "namespace": "ingress-nginx",
+        "labels": { "owner": "helm", "name": "ingress-nginx", "status": "deployed" }
+      },
+      "type": "helm.sh/release.v1"
+    }
+  ]
+}

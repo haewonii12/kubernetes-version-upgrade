@@ -1,0 +1,8 @@
+{
+  "items": [
+    {
+      "metadata": { "name": "local-path" },
+      "provisioner": "rancher.io/local-path"
+    }
+  ]
+}

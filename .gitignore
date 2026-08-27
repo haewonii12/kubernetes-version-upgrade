@@ -1,0 +1,24 @@
+# Python
+backend/.venv/
+**/__pycache__/
+*.pyc
+backend/var/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# RAG generated index (재생성 가능 — rag/documents 가 원본)
+rag/index/
+
+# 환경설정 / 민감정보
+.env
+*.kubeconfig
+kubeconfig*.yaml
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/

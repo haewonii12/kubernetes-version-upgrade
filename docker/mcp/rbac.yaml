@@ -1,0 +1,31 @@
+# kubectl-ai MCP Server가 사용할 ServiceAccount에 바인딩할 Read-Only ClusterRole 예시
+# (Section 30). 이 Role은 get/list/watch만 허용하며 create/update/patch/delete는
+# 포함하지 않는다. kubectl-ai MCP 프로세스를 이 ServiceAccount로 기동해야
+# Upgrade Agent가 실수로든 의도적으로든 클러스터를 변경할 수 없다.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: k8s-upgrade-agent-readonly
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: k8s-upgrade-agent-readonly
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: k8s-upgrade-agent-readonly
+subjects:
+  - kind: ServiceAccount
+    name: k8s-upgrade-agent-readonly
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: k8s-upgrade-agent-readonly
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,9 @@
+{
+  "items": [
+    {
+      "apiVersion": "flowcontrol.apiserver.k8s.io/v1beta3",
+      "kind": "FlowSchema",
+      "metadata": { "name": "custom-priority-workloads" }
+    }
+  ]
+}

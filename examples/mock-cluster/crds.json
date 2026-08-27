@@ -1,0 +1,13 @@
+{
+  "items": [
+    { "metadata": { "name": "certificates.cert-manager.io" }, "spec": { "group": "cert-manager.io" } },
+    { "metadata": { "name": "issuers.cert-manager.io" }, "spec": { "group": "cert-manager.io" } },
+    { "metadata": { "name": "clusterissuers.cert-manager.io" }, "spec": { "group": "cert-manager.io" } },
+    { "metadata": { "name": "ippools.crd.projectcalico.org" }, "spec": { "group": "crd.projectcalico.org" } },
+    { "metadata": { "name": "felixconfigurations.crd.projectcalico.org" }, "spec": { "group": "crd.projectcalico.org" } },
+    { "metadata": { "name": "applications.argoproj.io" }, "spec": { "group": "argoproj.io" } },
+    { "metadata": { "name": "appprojects.argoproj.io" }, "spec": { "group": "argoproj.io" } },
+    { "metadata": { "name": "prometheuses.monitoring.coreos.com" }, "spec": { "group": "monitoring.coreos.com" } },
+    { "metadata": { "name": "servicemonitors.monitoring.coreos.com" }, "spec": { "group": "monitoring.coreos.com" } }
+  ]
+}

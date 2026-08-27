@@ -1,0 +1,9 @@
+{
+  "items": [
+    {
+      "apiVersion": "policy/v1",
+      "kind": "PodDisruptionBudget",
+      "metadata": { "name": "ingress-nginx-controller-pdb", "namespace": "ingress-nginx" }
+    }
+  ]
+}

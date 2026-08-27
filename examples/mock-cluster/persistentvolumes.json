@@ -1,0 +1,9 @@
+{
+  "items": [
+    {
+      "metadata": { "name": "pvc-monitoring-prometheus-0" },
+      "spec": { "storageClassName": "local-path", "capacity": { "storage": "20Gi" } },
+      "status": { "phase": "Bound" }
+    }
+  ]
+}

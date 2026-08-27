@@ -1,0 +1,9 @@
+{
+  "items": [
+    {
+      "apiVersion": "autoscaling/v2",
+      "kind": "HorizontalPodAutoscaler",
+      "metadata": { "name": "argocd-server-hpa", "namespace": "argocd" }
+    }
+  ]
+}

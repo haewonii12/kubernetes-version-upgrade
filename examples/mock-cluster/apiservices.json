@@ -1,0 +1,8 @@
+{
+  "items": [
+    {
+      "metadata": { "name": "v1beta1.metrics.k8s.io" },
+      "spec": { "service": { "name": "metrics-server", "namespace": "kube-system" } }
+    }
+  ]
+}
