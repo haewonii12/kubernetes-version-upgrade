@@ -150,6 +150,9 @@ export interface DeprecatedAPIFinding {
   status: DeprecatedAPIStatus;
   evaluated_at_target_version: string | null;
   sources: RAGReference[];
+  scanned_by?: "rag" | "pluto";
+  found_in?: string; // "live" | "helm:<release>"
+  notes?: string | null;
 }
 
 export interface UpgradeCommand {
@@ -203,6 +206,7 @@ export interface UpgradeReport {
   upgrade_plan: UpgradePlan;
   software_compatibility: CompatibilityResult[];
   deprecated_apis: DeprecatedAPIFinding[];
+  deprecated_api_pluto_skipped?: string | null;
   executive_summary: string | null;
 }
 

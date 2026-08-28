@@ -54,7 +54,12 @@ export default function ReportPage({ report, onReset }: Props) {
       {tab === "overview" && <OverviewPanel report={report} />}
       {tab === "inventory" && <InventoryPanel cluster={report.cluster} />}
       {tab === "software" && <SoftwarePanel cluster={report.cluster} compatibility={report.software_compatibility} />}
-      {tab === "deprecated" && <DeprecatedApiPanel findings={report.deprecated_apis} />}
+      {tab === "deprecated" && (
+        <DeprecatedApiPanel
+          findings={report.deprecated_apis}
+          plutoSkipped={report.deprecated_api_pluto_skipped}
+        />
+      )}
       {tab === "custom-config" && <CustomConfigPanel configs={report.cluster.custom_configs} />}
       {tab === "risk" && <RiskPanel risks={report.risks} readiness={report.readiness} />}
       {tab === "timeline" && <TimelinePanel phases={report.upgrade_plan.phases} />}

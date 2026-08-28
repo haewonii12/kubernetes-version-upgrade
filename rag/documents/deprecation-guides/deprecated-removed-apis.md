@@ -11,6 +11,12 @@ tags: [deprecated-api, removed-api, flowcontrol, endpoints, volumes, cgroup]
 > kubernetes.io 블로그/CHANGELOG 근거로 작성됨)에서 확인된 실제 Deprecated/
 > Removed API 사실만 반영합니다. 근거가 불확실한 항목은 구조화된 판정 블록에
 > 넣지 않고 본문에 UNKNOWN으로 남겨둡니다.
+>
+> 검사는 **라이브 오브젝트 + 미적용 Helm 차트 매니페스트**를 대상으로 하며
+> (`backend/app/collectors/manifest_scan.py`), 이 문서의 판정과 별개로 번들된
+> **pluto**(FairwindsOps/pluto, 내장 데이터셋) 교차검증을 한 번 더 돌려
+> 결과를 병합합니다(`backend/app/collectors/pluto_scan.py`). pluto만 잡은
+> 항목은 리포트에 `scanned_by: pluto`로 표시됩니다.
 
 ## FlowSchema / PriorityLevelConfiguration v1beta3
 
@@ -225,6 +231,164 @@ deprecated_api_guide:
       removed_in_version: null
       replacement_api_version: null
       notes: "GA 안정 버전이며 1.32~1.36 구간에서 변경 이력 없음."
+```
+
+## 1.32 이전에 이미 제거된 API (Helm 차트/미적용 매니페스트 잔존 탐지용)
+
+아래는 1.16~1.29 사이에 이미 제거되어 **1.32 클러스터에는 라이브 오브젝트로
+존재할 수 없는** apiVersion들이다. 하지만 아직 업그레이드하지 않은 Helm 차트
+템플릿이나 GitOps 저장소의 매니페스트에는 남아 있을 수 있고, 이 상태로
+`helm upgrade` / `kubectl apply` 하면 실패한다 — Helm 릴리스 매니페스트 스캔에서
+이 목록에 걸리면 ACTION_REQUIRED로 보고한다(`removed_in_version`이 이미 지난
+버전이라 라이브 발견 시에는 BLOCKER).
+
+```yaml
+deprecated_api_guide:
+  entries:
+    - kind: Deployment
+      api_version: extensions/v1beta1
+      deprecated_in_version: "1.9"
+      removed_in_version: "1.16"
+      replacement_api_version: apps/v1
+      notes: "extensions/v1beta1, apps/v1beta1, apps/v1beta2 는 1.16에서 제거. apps/v1 사용."
+    - kind: Deployment
+      api_version: apps/v1beta1
+      deprecated_in_version: "1.9"
+      removed_in_version: "1.16"
+      replacement_api_version: apps/v1
+      notes: "1.16에서 제거."
+    - kind: Deployment
+      api_version: apps/v1beta2
+      deprecated_in_version: "1.9"
+      removed_in_version: "1.16"
+      replacement_api_version: apps/v1
+      notes: "1.16에서 제거."
+    - kind: DaemonSet
+      api_version: extensions/v1beta1
+      deprecated_in_version: "1.9"
+      removed_in_version: "1.16"
+      replacement_api_version: apps/v1
+      notes: "1.16에서 제거."
+    - kind: DaemonSet
+      api_version: apps/v1beta2
+      deprecated_in_version: "1.9"
+      removed_in_version: "1.16"
+      replacement_api_version: apps/v1
+      notes: "1.16에서 제거."
+    - kind: StatefulSet
+      api_version: apps/v1beta1
+      deprecated_in_version: "1.9"
+      removed_in_version: "1.16"
+      replacement_api_version: apps/v1
+      notes: "1.16에서 제거."
+    - kind: StatefulSet
+      api_version: apps/v1beta2
+      deprecated_in_version: "1.9"
+      removed_in_version: "1.16"
+      replacement_api_version: apps/v1
+      notes: "1.16에서 제거."
+    - kind: ReplicaSet
+      api_version: extensions/v1beta1
+      deprecated_in_version: "1.9"
+      removed_in_version: "1.16"
+      replacement_api_version: apps/v1
+      notes: "1.16에서 제거."
+    - kind: Ingress
+      api_version: extensions/v1beta1
+      deprecated_in_version: "1.14"
+      removed_in_version: "1.22"
+      replacement_api_version: networking.k8s.io/v1
+      notes: "1.22에서 제거."
+    - kind: Ingress
+      api_version: networking.k8s.io/v1beta1
+      deprecated_in_version: "1.19"
+      removed_in_version: "1.22"
+      replacement_api_version: networking.k8s.io/v1
+      notes: "1.22에서 제거."
+    - kind: IngressClass
+      api_version: networking.k8s.io/v1beta1
+      deprecated_in_version: "1.19"
+      removed_in_version: "1.22"
+      replacement_api_version: networking.k8s.io/v1
+      notes: "1.22에서 제거."
+    - kind: PodDisruptionBudget
+      api_version: policy/v1beta1
+      deprecated_in_version: "1.21"
+      removed_in_version: "1.25"
+      replacement_api_version: policy/v1
+      notes: "1.25에서 제거."
+    - kind: PodSecurityPolicy
+      api_version: policy/v1beta1
+      deprecated_in_version: "1.21"
+      removed_in_version: "1.25"
+      replacement_api_version: null
+      notes: "1.25에서 완전 제거(대체 없음). Pod Security Admission으로 전환."
+    - kind: CronJob
+      api_version: batch/v1beta1
+      deprecated_in_version: "1.21"
+      removed_in_version: "1.25"
+      replacement_api_version: batch/v1
+      notes: "1.25에서 제거."
+    - kind: HorizontalPodAutoscaler
+      api_version: autoscaling/v2beta1
+      deprecated_in_version: "1.22"
+      removed_in_version: "1.25"
+      replacement_api_version: autoscaling/v2
+      notes: "1.25에서 제거."
+    - kind: HorizontalPodAutoscaler
+      api_version: autoscaling/v2beta2
+      deprecated_in_version: "1.23"
+      removed_in_version: "1.26"
+      replacement_api_version: autoscaling/v2
+      notes: "1.26에서 제거."
+    - kind: RuntimeClass
+      api_version: node.k8s.io/v1beta1
+      deprecated_in_version: "1.22"
+      removed_in_version: "1.25"
+      replacement_api_version: node.k8s.io/v1
+      notes: "1.25에서 제거."
+    - kind: CSIDriver
+      api_version: storage.k8s.io/v1beta1
+      deprecated_in_version: "1.19"
+      removed_in_version: "1.22"
+      replacement_api_version: storage.k8s.io/v1
+      notes: "1.22에서 제거."
+    - kind: CSINode
+      api_version: storage.k8s.io/v1beta1
+      deprecated_in_version: "1.17"
+      removed_in_version: "1.22"
+      replacement_api_version: storage.k8s.io/v1
+      notes: "1.22에서 제거."
+    - kind: CustomResourceDefinition
+      api_version: apiextensions.k8s.io/v1beta1
+      deprecated_in_version: "1.16"
+      removed_in_version: "1.22"
+      replacement_api_version: apiextensions.k8s.io/v1
+      notes: "1.22에서 제거."
+    - kind: MutatingWebhookConfiguration
+      api_version: admissionregistration.k8s.io/v1beta1
+      deprecated_in_version: "1.16"
+      removed_in_version: "1.22"
+      replacement_api_version: admissionregistration.k8s.io/v1
+      notes: "1.22에서 제거."
+    - kind: ValidatingWebhookConfiguration
+      api_version: admissionregistration.k8s.io/v1beta1
+      deprecated_in_version: "1.16"
+      removed_in_version: "1.22"
+      replacement_api_version: admissionregistration.k8s.io/v1
+      notes: "1.22에서 제거."
+    - kind: APIService
+      api_version: apiregistration.k8s.io/v1beta1
+      deprecated_in_version: "1.19"
+      removed_in_version: "1.22"
+      replacement_api_version: apiregistration.k8s.io/v1
+      notes: "1.22에서 제거."
+    - kind: ClusterRole
+      api_version: rbac.authorization.k8s.io/v1beta1
+      deprecated_in_version: "1.17"
+      removed_in_version: "1.22"
+      replacement_api_version: rbac.authorization.k8s.io/v1
+      notes: "1.22에서 제거 (Role/RoleBinding/ClusterRoleBinding 동일)."
 ```
 
 ## 구조화 판정 대상이 아닌 그 외 Deprecation (참고용, kind/apiVersion 매칭 대상 아님)

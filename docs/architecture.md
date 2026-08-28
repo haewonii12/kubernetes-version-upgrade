@@ -126,6 +126,8 @@ LangGraph `State`(TypedDict/Pydantic)로 누적됩니다. 노드는 서로의 �
 | `node.py` | OS/Kernel/cgroup/Container Runtime 정보 (node별), 값 불일치 감지용 raw 데이터 반환 |
 | `etcd.py` | etcd manifest, member list, endpoint health, topology(stacked/external) 판단에 필요한 raw 데이터 |
 | `addon.py` | 이미지 태그 파싱 → software/version 후보 추출 (판단은 Analyzer가 아니라 이 모듈이 "추론"까지 담당 — 순수 파싱 로직이므로 collector에 위치) |
+| `manifest_scan.py` | Deprecated API 검사 대상 (kind, apiVersion) 수집: 라이브 오브젝트(workload/네트워킹/정책/웹훅 등) + `helm.sh/release.v1` Secret 을 디코드한 미적용 Helm 차트 매니페스트 |
+| `pluto_scan.py` | 이미지에 구워넣은 pluto 바이너리로 `manifest_scan` 결과를 교차검증 (`pluto detect-files`, 클러스터 접근 없이 파일만; 데이터셋은 바이너리 내장이라 폐쇄망 OK) |
 
 ### 3.2 MCP 계층 (`backend/app/mcp/`)
 - `client.py`: MCP Client 인터페이스 (`RealMCPClient` / `MockMCPClient`). Collector는 이 인터페이스만 알고 실제 구현을 모름.

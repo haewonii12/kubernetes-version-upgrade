@@ -54,5 +54,7 @@ class UpgradeReport(BaseModel):
     upgrade_plan: UpgradePlan
     software_compatibility: list[CompatibilityResult] = Field(default_factory=list)
     deprecated_apis: list[DeprecatedAPIFinding] = Field(default_factory=list)
+    # pluto 교차검증을 건너뛴 경우 그 사유 (바이너리 부재 등). None이면 정상 수행됨.
+    deprecated_api_pluto_skipped: str | None = None
     # LLM Endpoint/Model이 지정된 경우에만 채워지는 전체 요약 (없으면 None).
     executive_summary: str | None = None

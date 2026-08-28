@@ -27,6 +27,12 @@ class DeprecatedAPIFinding(BaseModel):
     status: DeprecatedAPIStatus
     evaluated_at_target_version: str | None = None
     sources: list[RAGReference] = Field(default_factory=list)
+    # 어디서 이 리소스를 발견했고 누가 판정했는가.
+    #   scanned_by: "rag" (이 저장소 RAG 문서) | "pluto" (번들된 pluto 교차검증)
+    #   found_in:   "live" (클러스터 라이브 오브젝트) | "helm:<release>" (미적용 Helm 차트 매니페스트)
+    scanned_by: str = "rag"
+    found_in: str = "live"
+    notes: str | None = None
 
 
 class UpgradeCommand(BaseModel):

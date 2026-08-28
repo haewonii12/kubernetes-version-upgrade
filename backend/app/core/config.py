@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     mcp_server_command: str = "kubectl-ai"
     mcp_server_args: str = "--mcp-server"
 
+    # Deprecated API 교차검증용 pluto 바이너리 (Docker 이미지에 구워져 있음).
+    # 없으면 pluto 스캔 단계는 조용히 건너뛴다 (RAG 판정은 그대로 동작).
+    pluto_command: str = "pluto"
+
     # RAG
     rag_documents_dir: Path = PROJECT_ROOT / "rag" / "documents"
     rag_index_path: Path = PROJECT_ROOT / "rag" / "index" / "index.json"

@@ -197,23 +197,33 @@ def _deprecated_api_risks(findings_in: list[DeprecatedAPIFinding]) -> list[RiskF
         if severity is None:  # OK
             continue
         resource_desc = f"{f.namespace + '/' if f.namespace else ''}{f.resource_name}" if f.resource_name else "(cluster-scoped)"
+        in_helm = (f.found_in or "").startswith("helm")
+        where = f"미적용 Helm 차트({f.found_in.split(':', 1)[-1]})" if in_helm else "클러스터 라이브 오브젝트"
+        by = "pluto 내장 데이터셋" if f.scanned_by == "pluto" else "RAG Deprecated API Guide"
+        if f.status == DeprecatedAPIStatus.UPGRADE_BLOCKER:
+            reason = f"이 API는 Kubernetes {f.removed_in_version}에서 제거됩니다. ({where}, 근거: {by})"
+        elif f.status == DeprecatedAPIStatus.ACTION_REQUIRED:
+            base = (
+                f"이미 Kubernetes {f.removed_in_version}에서 제거된 API"
+                if f.removed_in_version
+                else f"Kubernetes {f.deprecated_in_version}부터 Deprecated"
+            )
+            extra = " — 라이브에는 없지만 다음 `helm upgrade` 시 실패합니다" if in_helm else ""
+            reason = f"{base} 입니다. ({where}, 근거: {by}){extra}"
+        else:
+            reason = f"{by}에서 이 API의 Deprecated/Removed 정보를 찾지 못했습니다. ({where})"
+        if f.replacement_api_version:
+            rec = f"{f.replacement_api_version}(으)로 마이그레이션하세요"
+            rec += " (Helm 차트 값/템플릿 또는 chart 버전 업그레이드)." if in_helm else "."
+        else:
+            rec = "공식 문서를 참고해 수동으로 검증하세요 (Manual Verification Required)."
         findings.append(
             RiskFinding(
                 finding=f"{f.resource_kind} {resource_desc} ({f.api_version}) — {f.status.value}",
                 severity=severity,
                 category="deprecated-api",
-                reason=(
-                    f"이 API는 Kubernetes {f.removed_in_version}에서 제거됩니다."
-                    if f.status == DeprecatedAPIStatus.UPGRADE_BLOCKER
-                    else f"이 API는 Kubernetes {f.deprecated_in_version}부터 Deprecated 상태입니다."
-                    if f.status == DeprecatedAPIStatus.ACTION_REQUIRED
-                    else "RAG 문서에서 이 API에 대한 Deprecated/Removed 정보를 찾지 못했습니다."
-                ),
-                recommendation=(
-                    f"{f.replacement_api_version}(으)로 마이그레이션하세요."
-                    if f.replacement_api_version
-                    else "공식 문서를 참고해 수동으로 검증하세요 (Manual Verification Required)."
-                ),
+                reason=reason,
+                recommendation=rec,
                 sources=f.sources,
                 related_upgrade_step=f"-> {f.evaluated_at_target_version}" if f.evaluated_at_target_version else None,
             )

@@ -55,7 +55,7 @@ def _unescape_go_quoted_string(escaped: str) -> str:
     return json.loads(f'"{escaped}"')
 
 
-def _parse_kubectl_tool_result(text: str) -> Any:
+def _parse_kubectl_tool_result(text: str, want_json: bool = True) -> Any:
     error_match = _ERROR_RE.search(text)
     if error_match:
         error_text = _unescape_go_quoted_string(error_match.group(1)).strip()
@@ -67,6 +67,8 @@ def _parse_kubectl_tool_result(text: str) -> Any:
         raise RuntimeError(f"kubectl-ai 응답 형식을 해석할 수 없습니다: {text[:300]!r}")
 
     raw_stdout = _unescape_go_quoted_string(stdout_match.group(1))
+    if not want_json:
+        return raw_stdout
     return json.loads(raw_stdout) if raw_stdout.strip() else {}
 
 
@@ -87,6 +89,14 @@ class MCPClient(abc.ABC):
 
     @abc.abstractmethod
     def get_configmaps(self, namespace: str | None = None) -> list[dict[str, Any]]: ...
+
+    @abc.abstractmethod
+    def list_api_resource_kinds(self) -> list[str]:
+        """``kubectl api-resources --verbs=list -o name`` 결과 (예: ``deployments.apps``)."""
+
+    @abc.abstractmethod
+    def get_resources(self, resource_names: list[str]) -> list[dict[str, Any]]:
+        """지정한 resource 이름들의 모든 오브젝트를 한 번에 조회(``get <a,b,c> -A -o json``)."""
 
     @abc.abstractmethod
     def get_deployments(self, namespace: str | None = None) -> list[dict[str, Any]]: ...
@@ -154,7 +164,7 @@ class RealMCPClient(MCPClient):
         self._command = command
         self._args = args
         self._env = env
-        self._request_q: queue.Queue[tuple[list[str], Future] | None] = queue.Queue()
+        self._request_q: queue.Queue[tuple[list[str], Future, bool] | None] = queue.Queue()
         self._ready = threading.Event()
         self._connect_error: BaseException | None = None
         self._thread = threading.Thread(target=self._run_loop, name="mcp-client-loop", daemon=True)
@@ -194,7 +204,7 @@ class RealMCPClient(MCPClient):
                         item = await anyio.to_thread.run_sync(self._request_q.get)
                         if item is None:  # close() 신호
                             return
-                        args, future = item
+                        args, future, want_json = item
                         try:
                             command = "kubectl " + shlex.join(args)
                             with anyio.fail_after(_CALL_TIMEOUT_SECONDS):
@@ -204,7 +214,7 @@ class RealMCPClient(MCPClient):
                             text = "".join(block.text for block in result.content if hasattr(block, "text"))
                             if result.is_error:
                                 raise RuntimeError(f"kubectl-ai MCP tool 오류: {text[:300]}")
-                            future.set_result(_parse_kubectl_tool_result(text))
+                            future.set_result(_parse_kubectl_tool_result(text, want_json))
                         except Exception as exc:  # noqa: BLE001
                             future.set_exception(exc)
         except Exception as exc:
@@ -213,9 +223,9 @@ class RealMCPClient(MCPClient):
                 self._ready.set()
             raise
 
-    def _call_kubectl(self, args: list[str]) -> dict[str, Any] | list[Any]:
+    def _call_kubectl(self, args: list[str], want_json: bool = True) -> Any:
         future: Future = Future()
-        self._request_q.put((args, future))
+        self._request_q.put((args, future, want_json))
         try:
             return future.result(timeout=_CALL_TIMEOUT_SECONDS + 5)
         except FutureTimeoutError as exc:
@@ -250,6 +260,24 @@ class RealMCPClient(MCPClient):
 
     def get_configmaps(self, namespace: str | None = None) -> list[dict[str, Any]]:
         return self._get_all_ns("configmaps", namespace)
+
+    def list_api_resource_kinds(self) -> list[str]:
+        try:
+            text = self._call_kubectl(["api-resources", "--verbs=list", "-o", "name"], want_json=False)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("api-resources 조회 실패: %s", exc)
+            return []
+        return [line.strip() for line in str(text).splitlines() if line.strip()]
+
+    def get_resources(self, resource_names: list[str]) -> list[dict[str, Any]]:
+        if not resource_names:
+            return []
+        try:
+            data = self._call_kubectl(["get", ",".join(resource_names), "-A", "-o", "json"])
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("get_resources 실패 (%s): %s", ",".join(resource_names), exc)
+            return []
+        return data.get("items", []) if isinstance(data, dict) else []
 
     def get_deployments(self, namespace: str | None = None) -> list[dict[str, Any]]:
         return self._get_all_ns("deployments", namespace)
@@ -330,6 +358,43 @@ class MockMCPClient(MCPClient):
         if namespace:
             return [c for c in items if c["metadata"]["namespace"] == namespace]
         return items
+
+    # resource 이름(그룹 포함) -> mock fixture 파일 매핑
+    _RESOURCE_FIXTURE = {
+        "deployments": "deployments",
+        "daemonsets": "daemonsets",
+        "statefulsets": "statefulsets",
+        "horizontalpodautoscalers": "hpas",
+        "poddisruptionbudgets": "pdbs",
+        "flowschemas": "flowschemas",
+        "customresourcedefinitions": "crds",
+        "apiservices": "apiservices",
+    }
+
+    def list_api_resource_kinds(self) -> list[str]:
+        return [
+            "deployments.apps",
+            "daemonsets.apps",
+            "statefulsets.apps",
+            "horizontalpodautoscalers.autoscaling",
+            "poddisruptionbudgets.policy",
+            "flowschemas.flowcontrol.apiserver.k8s.io",
+            "customresourcedefinitions.apiextensions.k8s.io",
+            "apiservices.apiregistration.k8s.io",
+        ]
+
+    def get_resources(self, resource_names: list[str]) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        for rn in resource_names:
+            key = rn.split(".", 1)[0]
+            fixture = self._RESOURCE_FIXTURE.get(key)
+            if not fixture or fixture in seen:
+                continue
+            seen.add(fixture)
+            data = self._load(fixture)
+            out.extend(data.get("items", []) if isinstance(data, dict) else [])
+        return out
 
     def get_deployments(self, namespace: str | None = None) -> list[dict[str, Any]]:
         items = self._load("deployments").get("items", [])

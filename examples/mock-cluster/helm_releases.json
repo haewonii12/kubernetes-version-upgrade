@@ -4,15 +4,26 @@
       "metadata": {
         "name": "sh.helm.release.v1.cert-manager.v1",
         "namespace": "cert-manager",
-        "labels": { "owner": "helm", "name": "cert-manager", "status": "deployed" }
+        "labels": {
+          "owner": "helm",
+          "name": "cert-manager",
+          "status": "deployed"
+        }
       },
-      "type": "helm.sh/release.v1"
+      "type": "helm.sh/release.v1",
+      "data": {
+        "release": "SDRzSUFOam1rR29DLzYyUXowNERJUkNIWDRYZzFkMjZKODNlMUQ2QWlZa25MbE9ZdHFRd0VJYmRaTlAwM1lXdGJmelRwSnJJRGViak45L01YaEo0bEwyUUdsTnVQQkJzTU1sYklVZE1iQU9WVWxkdWxlSUkraUpxYVIzSysxNXloanh3UlF4R0Z5WTA4bERxZWdzcHo0REhEQVl5ekpmcm5lWFl0ZDE5MjhsRGpTbUlYU1BYSk5rMGphSWI4UnFHcExFWG55TVdHWDEwa0pFWFJ3dVBsTnNKdkZNRTBiNGQwM3NCTWZKaTdCVHRMSmxlTE0rc29wTm1yMGlJcXZtMXcrbDFYc2ozRWtmVTg3OVVBcTBHTGd0VTlEdmZhRllYUkdNb09WTlJYUld0cys5TE1FdkxhWWk1UUUrRDJlQi9pWHRManlOWUJ5dUhmNUZQTmlTYkorMkErY0lZckxkb0JtZHAwKzRldUxYaHgwUWZBYzgxNE9vc2pTNXMyVy9wTW9JYnF1bmRmQlRKd3pzeHF3UzYxd0lBQUE9PQ=="
+      }
     },
     {
       "metadata": {
         "name": "sh.helm.release.v1.ingress-nginx.v1",
         "namespace": "ingress-nginx",
-        "labels": { "owner": "helm", "name": "ingress-nginx", "status": "deployed" }
+        "labels": {
+          "owner": "helm",
+          "name": "ingress-nginx",
+          "status": "deployed"
+        }
       },
       "type": "helm.sh/release.v1"
     }

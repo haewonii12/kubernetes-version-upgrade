@@ -18,7 +18,11 @@ from typing import TypedDict
 from langgraph.graph import END, START, StateGraph
 
 from app.agents.compatibility import evaluate_compatibility, summarize_compatibility
-from app.agents.deprecated_api import evaluate_deprecated_apis, summarize_deprecated_apis
+from app.agents.deprecated_api import (
+    evaluate_deprecated_apis,
+    merge_findings,
+    summarize_deprecated_apis,
+)
 from app.agents.planner import build_upgrade_plan, compute_upgrade_path
 from app.agents.risk import build_risk_findings
 from app.collectors.addon import collect_software_inventory
@@ -26,7 +30,9 @@ from app.collectors.certificate import collect_certificate_expirations
 from app.collectors.custom_config import CustomConfigCollector
 from app.collectors.etcd import EtcdCollector
 from app.collectors.kubernetes import KubernetesCollector
+from app.collectors.manifest_scan import gather_manifest_objects, to_observed
 from app.collectors.node import NodeCollector, detect_node_inconsistencies
+from app.collectors.pluto_scan import scan_with_pluto
 from app.llm.client import LLMClient
 from app.mcp.client import MCPClient
 from app.models.cluster import ClusterInfo
@@ -42,7 +48,8 @@ class AgentState(TypedDict, total=False):
     target_version: str
     cluster: ClusterInfo
     node_warnings: list[str]
-    observed_api_resources: list[dict]
+    gathered_manifests: list[dict]
+    pluto_skip_reason: str | None
     reference_material: dict[str, list[RAGReference]]
     upgrade_path: list[str]
     compatibility_results: list[CompatibilityResult]
@@ -116,8 +123,8 @@ def build_graph(client: MCPClient, rag: RAGRetriever, llm_client: LLMClient | No
     def detect_installed_software(state: AgentState) -> dict:
         inventory = collect_software_inventory(client)
         updated = state["cluster"].model_copy(update={"software_inventory": inventory})
-        observed_api_resources = kubernetes_collector.collect_observed_api_resources()
-        return {"cluster": updated, "observed_api_resources": observed_api_resources}
+        gathered = gather_manifest_objects(client)
+        return {"cluster": updated, "gathered_manifests": gathered}
 
     def search_rag(state: AgentState) -> dict:
         # Compatibility/Deprecated API 검사에 필요한 구조화된 근거는 각 전용 노드가
@@ -139,8 +146,11 @@ def build_graph(client: MCPClient, rag: RAGRetriever, llm_client: LLMClient | No
         return {"upgrade_path": upgrade_path, "compatibility_results": results}
 
     def check_deprecated_api(state: AgentState) -> dict:
-        findings = evaluate_deprecated_apis(state.get("observed_api_resources", []), state["upgrade_path"], rag)
-        return {"deprecated_findings": findings}
+        gathered = state.get("gathered_manifests", [])
+        rag_findings = evaluate_deprecated_apis(to_observed(gathered), state["upgrade_path"], rag)
+        pluto_findings, pluto_skip = scan_with_pluto(gathered, state["target_version"])
+        findings = merge_findings(rag_findings, pluto_findings)
+        return {"deprecated_findings": findings, "pluto_skip_reason": pluto_skip}
 
     def analyze_risk(state: AgentState) -> dict:
         compatibility_summary = summarize_compatibility(state["compatibility_results"])

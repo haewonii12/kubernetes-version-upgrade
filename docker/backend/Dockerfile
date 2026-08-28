@@ -25,6 +25,19 @@ RUN set -eu; \
     tar -xzf /tmp/kubectl-ai.tar.gz -C /tmp kubectl-ai; \
     install -m 0755 /tmp/kubectl-ai /usr/local/bin/kubectl-ai
 
+# --- pluto 바이너리 다운로드 (Deprecated API 교차검증, 빌드 시점에만 인터넷 필요) ---
+# pluto는 versions.yaml 을 바이너리에 go:embed 하므로 폐쇄망에서 추가 다운로드가 없다.
+FROM debian:bookworm-slim AS pluto-fetch
+ARG PLUTO_VERSION=5.24.3
+ARG TARGETARCH
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+RUN set -eu; \
+    curl -fsSL -o /tmp/pluto.tar.gz \
+      "https://github.com/FairwindsOps/pluto/releases/download/v${PLUTO_VERSION}/pluto_${PLUTO_VERSION}_linux_${TARGETARCH}.tar.gz"; \
+    tar -xzf /tmp/pluto.tar.gz -C /tmp pluto; \
+    install -m 0755 /tmp/pluto /usr/local/bin/pluto
+
 # --- 실제 런타임 이미지 ---
 FROM python:3.12-slim
 
@@ -37,6 +50,7 @@ COPY backend /app/backend
 COPY rag /app/rag
 COPY examples /app/examples
 COPY --from=kubectl-ai-fetch /usr/local/bin/kubectl-ai /usr/local/bin/kubectl-ai
+COPY --from=pluto-fetch /usr/local/bin/pluto /usr/local/bin/pluto
 
 WORKDIR /app/backend
 ENV PYTHONUNBUFFERED=1
@@ -44,6 +58,7 @@ ENV PYTHONUNBUFFERED=1
 # docker-compose.yml의 environment로 덮어쓸 수 있다.
 ENV UPGRADE_AGENT_MCP_SERVER_COMMAND=/usr/local/bin/kubectl-ai
 ENV UPGRADE_AGENT_MCP_SERVER_ARGS=--mcp-server
+ENV UPGRADE_AGENT_PLUTO_COMMAND=/usr/local/bin/pluto
 
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -90,38 +90,5 @@ class KubernetesCollector:
             (c.get("spec", {}).get("group") or "") == "gateway.networking.k8s.io" for c in self._client.get_crds()
         )
 
-    def collect_observed_api_resources(self) -> list[dict[str, str | None]]:
-        """Deprecated API 검사 대상이 되는 실제 Cluster Resource의 apiVersion 목록.
-
-        PoC 범위에서는 get/list 로 저비용에 조회 가능하고 버전 변화가 잦은
-        HPA / PDB / FlowSchema 를 대상으로 한다 (Section 11).
-        """
-        observed: list[dict[str, str | None]] = []
-        for hpa in self._client.get_horizontal_pod_autoscalers():
-            observed.append(
-                {
-                    "kind": "HorizontalPodAutoscaler",
-                    "api_version": hpa.get("apiVersion"),
-                    "name": hpa["metadata"]["name"],
-                    "namespace": hpa["metadata"].get("namespace"),
-                }
-            )
-        for pdb in self._client.get_pod_disruption_budgets():
-            observed.append(
-                {
-                    "kind": "PodDisruptionBudget",
-                    "api_version": pdb.get("apiVersion"),
-                    "name": pdb["metadata"]["name"],
-                    "namespace": pdb["metadata"].get("namespace"),
-                }
-            )
-        for fs in self._client.get_flow_control_configs():
-            observed.append(
-                {
-                    "kind": "FlowSchema",
-                    "api_version": fs.get("apiVersion"),
-                    "name": fs["metadata"]["name"],
-                    "namespace": None,
-                }
-            )
-        return observed
+    # Deprecated/Removed API 검사 대상 수집은 collectors/manifest_scan.py 로 이동했다
+    # (라이브 오브젝트 전체 + 미적용 Helm 차트 매니페스트, RAG + pluto 하이브리드 판정).

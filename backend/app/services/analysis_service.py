@@ -106,6 +106,7 @@ def run_analysis(session: AnalysisSession, kubeconfig_path: Path | None) -> None
             upgrade_plan=final_state["upgrade_plan"],
             software_compatibility=final_state["compatibility_summary"],
             deprecated_apis=final_state["deprecated_summary"],
+            deprecated_api_pluto_skipped=final_state.get("pluto_skip_reason"),
             executive_summary=executive_summary,
         )
         session.report = report
