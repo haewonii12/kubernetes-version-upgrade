@@ -65,6 +65,18 @@ docker compose up -d --build
 
 브라우저에서 `http://localhost:3000` 접속. 백엔드 API는 `http://localhost:8000`.
 
+## 실행 방법 — Kubernetes
+
+`deploy/k8s/` 에 Deployment + Service + Ingress 매니페스트가 있다.
+
+```bash
+# deploy/k8s/ingress.yaml 의 host 를 실제 도메인으로 수정한 뒤
+kubectl apply -k deploy/k8s/
+```
+
+자세한 내용(이미지 배포 방식, backend replicas=1 이유, SSE 버퍼링, RAG 문서 갱신 등)은
+[`deploy/k8s/README.md`](deploy/k8s/README.md) 참고.
+
 ## 폐쇄망 배포 방법
 
 인터넷이 되는 환경에서 이미지를 빌드해 tar로 내보낸 뒤, 폐쇄망으로 반입해서 그대로 실행합니다.

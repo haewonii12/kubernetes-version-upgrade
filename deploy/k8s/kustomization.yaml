@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - backend.yaml
+  - frontend.yaml
+  - ingress.yaml
+
+# 사내 레지스트리에 이미지를 올렸으면 여기서 접두사/태그를 바꾼다.
+# (안 올리고 노드에 직접 import 했으면 이 블록은 지우고 imagePullPolicy 를 Never 로).
+# images:
+#   - name: k8s-upgrade-backend
+#     newName: registry.corp.local:5000/k8s-upgrade-backend
+#     newTag: "1.0.0"
+#   - name: k8s-upgrade-frontend
+#     newName: registry.corp.local:5000/k8s-upgrade-frontend
+#     newTag: "1.0.0"

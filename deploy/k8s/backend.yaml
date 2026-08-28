@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: k8s-upgrade
+  labels: { app: k8s-upgrade, component: backend }
+spec:
+  # 분석 세션(SSE 진행 이벤트 + 결과)이 프로세스 메모리에 있다
+  # (backend/app/services/session_store.py). 여러 replica면 진행 폴링/리포트
+  # 조회가 다른 pod로 가서 404 난다 → 반드시 1.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: { app: k8s-upgrade, component: backend }
+  template:
+    metadata:
+      labels: { app: k8s-upgrade, component: backend }
+    spec:
+      automountServiceAccountToken: false   # 로컬 클러스터 API를 호출하지 않는다
+      containers:
+        - name: backend
+          image: k8s-upgrade-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - { name: http, containerPort: 8000 }
+          env:
+            # SPA와 같은 호스트(ingress)에서 /api 로 프록시되므로 실제로는 same-origin
+            # → CORS 미발생. backend를 별도 호스트로 직접 노출할 때만 조정.
+            - name: UPGRADE_AGENT_CORS_ALLOW_ORIGINS
+              value: '["*"]'
+            # 실제 클러스터 분석용 LLM(선택). 폐쇄망이면 사내 vLLM/Ollama 엔드포인트.
+            # - name: UPGRADE_AGENT_LLM_ENDPOINT
+            #   value: "http://vllm.ai.svc:8000/v1"
+            # - name: UPGRADE_AGENT_LLM_MODEL
+            #   value: "your-model"
+          readinessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 250m, memory: 512Mi }
+            limits: { cpu: "1", memory: 1Gi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: { drop: ["ALL"] }
+            seccompProfile: { type: RuntimeDefault }
+          volumeMounts:
+            # audit 로그 + 분석 스냅샷(과거 결과 재조회). 유지하려면 emptyDir → PVC.
+            - { name: var, mountPath: /app/backend/var }
+            # kubeconfig 업로드 임시 저장 (분석 종료 즉시 삭제됨)
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - { name: var, emptyDir: {} }
+        - { name: tmp, emptyDir: {} }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend           # ← frontend nginx.conf 가 http://backend:8000 로 하드코딩.
+  namespace: k8s-upgrade  #   이 이름/포트를 바꾸려면 프론트 이미지 재빌드 필요.
+  labels: { app: k8s-upgrade, component: backend }
+spec:
+  selector: { app: k8s-upgrade, component: backend }
+  ports:
+    - { name: http, port: 8000, targetPort: http }

@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: k8s-upgrade
+  labels: { app: k8s-upgrade, component: frontend }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: k8s-upgrade, component: frontend }
+  template:
+    metadata:
+      labels: { app: k8s-upgrade, component: frontend }
+    spec:
+      automountServiceAccountToken: false
+      # nginx.conf 의 `proxy_pass http://backend:8000` 는 설정 로드 시점에 DNS를
+      # 확인한다. backend Service가 아직 없으면 nginx가 기동 실패한다 → backend
+      # Service 이름이 뜰 때까지 기다린다 (프론트 이미지 그대로 재사용, 추가 이미지 X).
+      initContainers:
+        - name: wait-backend
+          image: k8s-upgrade-frontend:latest
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "until getent hosts backend; do echo 'waiting for backend service...'; sleep 2; done"]
+      containers:
+        - name: frontend
+          image: k8s-upgrade-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - { name: http, containerPort: 80 }
+          readinessProbe:
+            httpGet: { path: /, port: http }
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 50m, memory: 32Mi }
+            limits: { cpu: 200m, memory: 128Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: { drop: ["ALL"] }
+            seccompProfile: { type: RuntimeDefault }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: k8s-upgrade
+  labels: { app: k8s-upgrade, component: frontend }
+spec:
+  selector: { app: k8s-upgrade, component: frontend }
+  ports:
+    - { name: http, port: 80, targetPort: http }
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frontend
+  namespace: k8s-upgrade
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: { app: k8s-upgrade, component: frontend }

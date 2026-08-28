@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: k8s-upgrade
+  namespace: k8s-upgrade
+  annotations:
+    # 분석 진행 상황은 SSE(EventSourceResponse)로 스트리밍된다. ingress 레이어가
+    # 버퍼링하면 진행률이 실시간으로 안 보이므로 끈다. (프론트 nginx.conf 는 이미 off)
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    # kubeconfig 파일 업로드 (multipart). 인증서가 박힌 kubeconfig는 커질 수 있다.
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  ingressClassName: nginx
+  # tls:
+  #   - hosts: [k8s-upgrade.example.com]
+  #     secretName: k8s-upgrade-tls
+  rules:
+    - host: k8s-upgrade.example.com          # ← 실제 호스트로 변경
+      http:
+        paths:
+          # 프론트 nginx 하나가 `/` (SPA) 와 `/api/` (백엔드 프록시) 를 모두 처리한다.
+          # ingress는 전부 frontend Service 로만 보내면 된다.
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port: { number: 80 }
