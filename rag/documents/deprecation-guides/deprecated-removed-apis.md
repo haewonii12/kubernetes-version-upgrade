@@ -42,6 +42,34 @@ deprecated_api_guide:
       notes: "FlowSchema와 동일한 일정(v1.32 제거)으로 처리됩니다."
 ```
 
+## FlowSchema / PriorityLevelConfiguration v1 (현재 GA)
+
+`flowcontrol.apiserver.k8s.io/v1`은 v1.29부터 GA인 안정 버전으로, 이 문서가
+다루는 1.32~1.36 구간에서 Deprecated/Removed 이력이 없습니다. 모든 kubeadm
+클러스터는 이 API로 된 기본 FlowSchema 13개(`catch-all`, `exempt`, `probes`,
+`system-nodes`, `kube-scheduler`, `kube-controller-manager`,
+`kube-system-service-accounts`, `service-accounts`, `system-node-high`,
+`system-leader-election`, `workload-leader-election`, `endpoint-controller`,
+`global-default`)와 기본 PriorityLevelConfiguration을 apiserver가 부트스트랩
+시점에 자동 생성합니다 — 사용자가 마이그레이션할 대상이 아닙니다.
+
+```yaml
+deprecated_api_guide:
+  entries:
+    - kind: FlowSchema
+      api_version: flowcontrol.apiserver.k8s.io/v1
+      deprecated_in_version: null
+      removed_in_version: null
+      replacement_api_version: null
+      notes: "v1.29 GA. 1.32~1.36 구간에서 변경 이력 없음. apiserver가 기본 생성하는 내장 객체."
+    - kind: PriorityLevelConfiguration
+      api_version: flowcontrol.apiserver.k8s.io/v1
+      deprecated_in_version: null
+      removed_in_version: null
+      replacement_api_version: null
+      notes: "v1.29 GA. 1.32~1.36 구간에서 변경 이력 없음. apiserver가 기본 생성하는 내장 객체."
+```
+
 ## Endpoints v1 (core)
 
 ```yaml
