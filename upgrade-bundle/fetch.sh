@@ -112,7 +112,7 @@ do_package() {
   do_list > MANIFEST.md
   local out="k8s-upgrade-bundle-1.36.tar.gz"
   echo ">> $out 생성"
-  tar czf "$out" versions.env fetch.sh load.sh README.md MANIFEST.md "$ART"
+  tar czf "$out" versions.env fetch.sh push-to-registry.sh load.sh README.md MANIFEST.md "$ART"
   echo
   echo "완료: $(du -h "$out" | cut -f1)  $out"
   echo "폐쇄망으로 옮긴 뒤 각 노드에서:  tar xzf $out && sudo bash load.sh"

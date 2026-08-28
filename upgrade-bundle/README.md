@@ -13,7 +13,8 @@ RPM 패키지 + 컨테이너 이미지 + 검증용 kubeadm 바이너리를 한�
 upgrade-bundle/
 ├── versions.env         # 단일 버전 소스
 ├── fetch.sh             # (인터넷 O) 아티팩트 수집 + 전송 tarball 생성
-├── load.sh              # (폐쇄망) 각 노드에 RPM 저장소 + 이미지 적재
+├── push-to-registry.sh  # 이미지 load → 사내 레지스트리용 retag → push
+├── load.sh              # (폐쇄망) 각 노드에 RPM 저장소 + 이미지 직접 적재
 ├── MANIFEST.md          # 수집 대상 전체 목록
 └── artifacts/           # fetch.sh 가 채움 (git 미포함)
     ├── rpms/x86_64/*.rpm
@@ -38,14 +39,43 @@ bash fetch.sh               # RPM + 이미지 + 바이너리 수집 → k8s-upgr
 
 승인된 방법(내부망 파일 서버, 반입 매체)으로 `k8s-upgrade-bundle-1.36.tar.gz` 를 옮긴다.
 
-## 3. 각 노드에서 — 적재 (업그레이드 아님)
+## 3. 이미지 배포 — 두 방식 중 하나
 
-모든 Control Plane + Worker 노드에서 root로:
+### 3-a. 사내 레지스트리에 push (레지스트리가 있으면 권장)
+
+**한 대(인터넷 X, 레지스트리 접근 O)에서** 이미지를 사내 레지스트리로 올린다:
 
 ```bash
-tar xzf k8s-upgrade-bundle-1.36.tar.gz
-cd upgrade-bundle
-sudo bash load.sh          # /opt/.../rpms 를 file:// dnf 저장소로 등록 + 이미지를 containerd(k8s.io)로 import
+tar xzf k8s-upgrade-bundle-1.36.tar.gz && cd upgrade-bundle
+podman login registry.corp.local:5000                 # 인증 필요 시
+bash push-to-registry.sh registry.corp.local:5000/k8s  # load → retag → push
+#   자체서명 레지스트리면:  --tls-verify=false
+#   특정 minor만:           --versions "1.33 1.34"
+#   매핑만 미리 보기:        --dry-run
+```
+
+레이아웃 2가지:
+- `--layout kubeadm` (기본): `registry.k8s.io/coredns/coredns:X → <TARGET>/coredns:X` 로 평탄화.
+  업그레이드 시 `kubeadm upgrade apply vX --image-repository <TARGET>` 또는
+  `kubeadm-config` 의 `ClusterConfiguration.imageRepository: <TARGET>` 로 가리킨다.
+- `--layout mirror`: `registry.k8s.io` 경로를 그대로 유지하고, 각 노드 containerd 의
+  레지스트리 미러(`/etc/containerd/certs.d/registry.k8s.io/hosts.toml`)로 redirect.
+  kubeadm 설정은 건드리지 않는다.
+
+스크립트가 끝나면 사용할 `--image-repository` 값과 태그 매핑
+(`artifacts/image-map-<layout>.txt`)을 출력한다.
+
+RPM 은 여전히 각 노드에 배포해야 한다:
+```bash
+sudo bash load.sh rpms      # file:// dnf 저장소만 등록 (이미지는 레지스트리에서 pull)
+```
+
+### 3-b. 각 노드 containerd 에 직접 import (레지스트리 없음)
+
+모든 Control Plane + Worker 노드에서 root로:
+```bash
+tar xzf k8s-upgrade-bundle-1.36.tar.gz && cd upgrade-bundle
+sudo bash load.sh           # RPM 을 file:// dnf 저장소로 등록 + 이미지를 containerd(k8s.io)로 import
 ```
 
 확인:
@@ -55,6 +85,10 @@ ctr -n k8s.io images ls | grep -E 'kube-|etcd|coredns|pause'
 ```
 
 ## 4. 업그레이드 실행 (minor 한 단계씩, 1.33 → 1.34 → 1.35 → 1.36)
+
+> 3-a(레지스트리) 방식이면 아래 `kubeadm upgrade apply` 에 `--image-repository <TARGET>` 를
+> 추가하거나 `kubeadm-config` 에 `imageRepository` 를 미리 넣어 둔다. 3-b(직접 import)면
+> 이미지가 이미 containerd 에 있으므로 그대로 진행한다.
 
 > 전체 절차(Pre-check, drain/uncordon, etcd 백업, 인증서 주의사항)는 이 분석 도구가
 > 생성하는 **Upgrade Timeline** 리포트를 따른다. 아래는 아티팩트 사용 요약.
