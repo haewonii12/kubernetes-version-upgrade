@@ -24,16 +24,16 @@ compatibility_matrix:
       reason: "OpenSearch Dashboards는 Kubernetes API와 직접 결합되지 않으며, OpenSearch 코어와 동일한 버전(3.8.0)으로 2026-08 기준 활발히 유지보수 중인 릴리스 트레인에 속합니다."
     - target_kubernetes_minor: "1.33"
       status: COMPATIBLE
-      reason: "1.32와 동일합니다."
+      reason: "OpenSearch Dashboards는 Kubernetes API와 직접 결합되지 않으며, OpenSearch 코어와 동일한 버전(3.8.0)으로 2026-08 기준 활발히 유지보수 중인 릴리스 트레인에 속합니다."
     - target_kubernetes_minor: "1.34"
       status: COMPATIBLE
-      reason: "1.32와 동일합니다."
+      reason: "OpenSearch Dashboards는 Kubernetes API와 직접 결합되지 않으며, OpenSearch 코어와 동일한 버전(3.8.0)으로 2026-08 기준 활발히 유지보수 중인 릴리스 트레인에 속합니다."
     - target_kubernetes_minor: "1.35"
       status: COMPATIBLE
-      reason: "1.32와 동일합니다."
+      reason: "OpenSearch Dashboards는 Kubernetes API와 직접 결합되지 않으며, OpenSearch 코어와 동일한 버전(3.8.0)으로 2026-08 기준 활발히 유지보수 중인 릴리스 트레인에 속합니다."
     - target_kubernetes_minor: "1.36"
       status: COMPATIBLE
-      reason: "1.32와 동일합니다. OpenSearch 코어와 버전을 항상 맞춰 업그레이드하세요."
+      reason: "OpenSearch Dashboards는 Kubernetes API와 직접 결합되지 않으며, OpenSearch 코어와 동일한 버전(3.8.0)으로 활발히 유지보수 중인 릴리스 트레인에 속합니다. OpenSearch 코어와 버전을 항상 맞춰 업그레이드하세요."
 ```
 
 ## 출처

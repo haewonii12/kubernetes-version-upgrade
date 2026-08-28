@@ -34,18 +34,18 @@ compatibility_matrix:
       reason: "공식 Compatibility Matrix 기준 0.7.x의 최소 요구 버전(1.27+)을 충족하며, metrics.k8s.io/v1beta1 API에 변경이 없습니다."
     - target_kubernetes_minor: "1.33"
       status: COMPATIBLE
-      reason: "1.32와 동일한 사유입니다."
+      reason: "공식 Compatibility Matrix 기준 0.7.x의 최소 요구 버전(1.27+)을 충족하며, metrics.k8s.io/v1beta1 API에 변경이 없습니다."
     - target_kubernetes_minor: "1.34"
       status: WARNING
       reason: "최소 요구 버전은 충족하지만, 0.9.x가 1.34+를 명시적으로 지원 대상으로 삼아 나온 시점입니다. 0.7.x는 이 시점 이후의 신규 기능/수정을 반영하지 않습니다."
       recommendation: "최신 metrics-server(0.8.x 이상)로 업그레이드를 검토하세요."
     - target_kubernetes_minor: "1.35"
       status: WARNING
-      reason: "1.34와 동일한 사유입니다. 버전 격차가 더 벌어집니다."
+      reason: "최소 요구 버전(1.27+)은 충족하지만, metrics-server 0.9.x가 1.34+를 명시적 지원 대상으로 삼아 나온 이후라 0.7.x는 그 시점 이후의 신규 기능/수정을 반영하지 못합니다. 버전 격차가 더 벌어집니다."
       recommendation: "최신 metrics-server로 업그레이드를 검토하세요."
     - target_kubernetes_minor: "1.36"
       status: WARNING
-      reason: "1.35와 동일한 사유입니다. 공식 저장소에서 0.7.x에 대한 명시적 EOL/지원 종료 공지는 확인되지 않았으나, 두 세대 이상 뒤처진 릴리스입니다."
+      reason: "최소 요구 버전(1.27+)은 충족하지만, metrics-server 0.9.x가 1.34+를 명시적 지원 대상으로 삼아 나온 이후라 0.7.x는 그 시점 이후의 신규 기능/수정을 반영하지 못합니다. 공식 저장소에서 0.7.x에 대한 명시적 EOL/지원 종료 공지는 확인되지 않았으나, 두 세대 이상 뒤처진 릴리스입니다."
       recommendation: "최신 metrics-server로 업그레이드를 검토하세요."
 ```
 
@@ -70,16 +70,16 @@ compatibility_matrix:
       recommendation: "가능하면 목표 버전(1.34+)에 맞는 조합으로 조정하거나, 공식 지원 범위를 벗어난 상태임을 인지하고 진행하세요."
     - target_kubernetes_minor: "1.33"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다 — 0.9.x의 최소 요구 버전(1.34+)에 못 미칩니다."
+      reason: "metrics-server 0.9.x의 공식 최소 요구 버전은 Kubernetes 1.34+입니다. 1.33은 이 요구를 충족하지 않는 공식 미지원 조합입니다(단, metrics.k8s.io/v1beta1 API 자체 변경은 없어 기능적으로는 동작 중일 수 있음)."
     - target_kubernetes_minor: "1.34"
       status: COMPATIBLE
       reason: "metrics-server 0.9.x의 공식 최소 요구 버전(1.34+)을 충족합니다."
     - target_kubernetes_minor: "1.35"
       status: COMPATIBLE
-      reason: "1.34와 동일한 사유입니다."
+      reason: "metrics-server 0.9.x의 공식 최소 요구 버전(1.34+)을 충족합니다."
     - target_kubernetes_minor: "1.36"
       status: COMPATIBLE
-      reason: "1.34와 동일한 사유입니다. 공식 매트릭스에 상한이 명시되어 있지 않습니다."
+      reason: "metrics-server 0.9.x의 공식 최소 요구 버전(1.34+)을 충족합니다. 공식 매트릭스에 상한이 명시되어 있지 않습니다."
 ```
 
 ## 출처

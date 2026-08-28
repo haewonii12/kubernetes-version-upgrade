@@ -30,20 +30,20 @@ compatibility_matrix:
       recommendation: "Kubernetes 업그레이드와 별개로 현재 지원 중인 최신 Keycloak major 버전으로 우선 업그레이드하세요(keycloak.org 릴리스 페이지 확인)."
     - target_kubernetes_minor: "1.33"
       status: WARNING
-      reason: "1.32와 동일한 사유(Keycloak 21.1 EOL)입니다."
-      recommendation: "최신 지원 버전으로 먼저 업그레이드하세요."
+      reason: "Keycloak 21.1은 2023-07-11에 지원이 종료되어(커뮤니티 배포판은 최신 major만 지원) 3년 넘게 보안 패치를 받지 못했습니다. 대상 Kubernetes 버전과 무관하게 이 자체가 위험입니다."
+      recommendation: "Kubernetes 업그레이드와 별개로 현재 지원 중인 최신 Keycloak major 버전으로 우선 업그레이드하세요(keycloak.org 릴리스 페이지 확인)."
     - target_kubernetes_minor: "1.34"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
-      recommendation: "최신 지원 버전으로 먼저 업그레이드하세요."
+      reason: "Keycloak 21.1은 2023-07-11에 지원이 종료되어(커뮤니티 배포판은 최신 major만 지원) 3년 넘게 보안 패치를 받지 못했습니다. 대상 Kubernetes 버전과 무관하게 이 자체가 위험입니다."
+      recommendation: "Kubernetes 업그레이드와 별개로 현재 지원 중인 최신 Keycloak major 버전으로 우선 업그레이드하세요(keycloak.org 릴리스 페이지 확인)."
     - target_kubernetes_minor: "1.35"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
-      recommendation: "최신 지원 버전으로 먼저 업그레이드하세요."
+      reason: "Keycloak 21.1은 2023-07-11에 지원이 종료되어(커뮤니티 배포판은 최신 major만 지원) 3년 넘게 보안 패치를 받지 못했습니다. 대상 Kubernetes 버전과 무관하게 이 자체가 위험입니다."
+      recommendation: "Kubernetes 업그레이드와 별개로 현재 지원 중인 최신 Keycloak major 버전으로 우선 업그레이드하세요(keycloak.org 릴리스 페이지 확인)."
     - target_kubernetes_minor: "1.36"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
-      recommendation: "최신 지원 버전으로 먼저 업그레이드하세요."
+      reason: "Keycloak 21.1은 2023-07-11에 지원이 종료되어(커뮤니티 배포판은 최신 major만 지원) 3년 넘게 보안 패치를 받지 못했습니다. 대상 Kubernetes 버전과 무관하게 이 자체가 위험입니다."
+      recommendation: "Kubernetes 업그레이드와 별개로 현재 지원 중인 최신 Keycloak major 버전으로 우선 업그레이드하세요(keycloak.org 릴리스 페이지 확인)."
 ```
 
 ## 출처

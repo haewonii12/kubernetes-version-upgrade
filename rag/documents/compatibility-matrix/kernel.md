@@ -45,17 +45,17 @@ compatibility_matrix:
       recommendation: "nftables kube-proxy 모드나 PSI 메트릭을 사용할 계획이 있다면 RHEL 8.10에서 실제 지원 여부를 사전 검증하세요."
     - target_kubernetes_minor: "1.33"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "핵심 kubelet/컨테이너 런타임 동작에는 문제가 없으나, RHEL 백포트 범위를 확인하지 않는 한 버전 번호(4.18)만으로 nftables kube-proxy 모드/PSI 메트릭 등 고급 기능 지원 여부를 판단할 수 없습니다."
     - target_kubernetes_minor: "1.34"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "핵심 kubelet/컨테이너 런타임 동작에는 문제가 없으나, RHEL 백포트 범위를 확인하지 않는 한 버전 번호(4.18)만으로 nftables kube-proxy 모드/PSI 메트릭 등 고급 기능 지원 여부를 판단할 수 없습니다."
     - target_kubernetes_minor: "1.35"
       status: WARNING
       reason: "cgroup v1 자체가 이 버전부터 kubelet 기본 거부 대상이 되므로(compatibility-matrix/cgroup.md 참고), 커널 버전 문제와 별개로 cgroup 설정을 먼저 해결해야 합니다."
       recommendation: "cgroup v2 전환(RHEL 8에서도 커널 파라미터로 가능)을 먼저 검토하세요."
     - target_kubernetes_minor: "1.36"
       status: WARNING
-      reason: "1.35와 동일한 사유입니다."
+      reason: "cgroup v1 자체가 1.35부터 kubelet 기본 거부 대상이므로(compatibility-matrix/cgroup.md 참고), 커널 버전 문제와 별개로 cgroup 설정을 먼저 해결해야 합니다."
 ```
 
 ## 출처

@@ -23,20 +23,20 @@ compatibility_matrix:
       recommendation: "Rancher/Fleet을 먼저 업그레이드하세요 — fleet-agent는 Fleet 업그레이드에 종속되어 함께 갱신됩니다."
     - target_kubernetes_minor: "1.33"
       status: INCOMPATIBLE
-      reason: "1.32와 동일한 사유."
-      recommendation: "1.32와 동일합니다."
+      reason: "fleet-agent 0.6.0은 Fleet 0.6.0/Rancher 2.7.x와 버전이 묶여 배포되는 에이전트라 독립적인 K8s 지원 범위가 없습니다. Rancher 2.7.x의 인증 범위(1.23~1.25)와 EOL 상태를 물려받습니다 — 근거는 compatibility-matrix/rancher.md 참고."
+      recommendation: "Rancher/Fleet을 먼저 업그레이드하세요 — fleet-agent는 Fleet 업그레이드에 종속되어 함께 갱신됩니다."
     - target_kubernetes_minor: "1.34"
       status: INCOMPATIBLE
-      reason: "1.32와 동일한 사유."
-      recommendation: "1.32와 동일합니다."
+      reason: "fleet-agent 0.6.0은 Fleet 0.6.0/Rancher 2.7.x와 버전이 묶여 배포되는 에이전트라 독립적인 K8s 지원 범위가 없습니다. Rancher 2.7.x의 인증 범위(1.23~1.25)와 EOL 상태를 물려받습니다 — 근거는 compatibility-matrix/rancher.md 참고."
+      recommendation: "Rancher/Fleet을 먼저 업그레이드하세요 — fleet-agent는 Fleet 업그레이드에 종속되어 함께 갱신됩니다."
     - target_kubernetes_minor: "1.35"
       status: INCOMPATIBLE
-      reason: "1.32와 동일한 사유."
-      recommendation: "1.32와 동일합니다."
+      reason: "fleet-agent 0.6.0은 Fleet 0.6.0/Rancher 2.7.x와 버전이 묶여 배포되는 에이전트라 독립적인 K8s 지원 범위가 없습니다. Rancher 2.7.x의 인증 범위(1.23~1.25)와 EOL 상태를 물려받습니다 — 근거는 compatibility-matrix/rancher.md 참고."
+      recommendation: "Rancher/Fleet을 먼저 업그레이드하세요 — fleet-agent는 Fleet 업그레이드에 종속되어 함께 갱신됩니다."
     - target_kubernetes_minor: "1.36"
       status: INCOMPATIBLE
-      reason: "1.32와 동일한 사유."
-      recommendation: "1.32와 동일합니다."
+      reason: "fleet-agent 0.6.0은 Fleet 0.6.0/Rancher 2.7.x와 버전이 묶여 배포되는 에이전트라 독립적인 K8s 지원 범위가 없습니다. Rancher 2.7.x의 인증 범위(1.23~1.25)와 EOL 상태를 물려받습니다 — 근거는 compatibility-matrix/rancher.md 참고."
+      recommendation: "Rancher/Fleet을 먼저 업그레이드하세요 — fleet-agent는 Fleet 업그레이드에 종속되어 함께 갱신됩니다."
 ```
 
 ## 출처

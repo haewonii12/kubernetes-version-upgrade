@@ -25,13 +25,13 @@ compatibility_matrix:
       reason: "tigera-operator 1.38.x가 설치하는 Calico v3.30.7이 Calico 공식 문서상 Kubernetes 1.32를 테스트 대상으로 명시합니다(compatibility-matrix/calico.md 참고)."
     - target_kubernetes_minor: "1.33"
       status: COMPATIBLE
-      reason: "동일한 사유(Calico 3.30.7이 1.33을 테스트 대상으로 명시)."
+      reason: "tigera-operator 1.38.x가 설치하는 Calico v3.30.7이 Calico 공식 문서상 Kubernetes 1.33을 테스트 대상으로 명시합니다(compatibility-matrix/calico.md 참고)."
     - target_kubernetes_minor: "1.34"
       status: COMPATIBLE
-      reason: "동일한 사유(Calico 3.30.7이 1.34를 테스트 대상으로 명시)."
+      reason: "tigera-operator 1.38.x가 설치하는 Calico v3.30.7이 Calico 공식 문서상 Kubernetes 1.34를 테스트 대상으로 명시합니다(compatibility-matrix/calico.md 참고)."
     - target_kubernetes_minor: "1.35"
       status: COMPATIBLE
-      reason: "동일한 사유(Calico 3.30.7이 1.35를 테스트 대상으로 명시)."
+      reason: "tigera-operator 1.38.x가 설치하는 Calico v3.30.7이 Calico 공식 문서상 Kubernetes 1.35를 테스트 대상으로 명시합니다(compatibility-matrix/calico.md 참고)."
     - target_kubernetes_minor: "1.36"
       status: WARNING
       reason: "Calico 3.30 공식 문서의 테스트 대상 버전 목록(1.31~1.35)에 1.36은 포함되어 있지 않습니다. tigera-operator 자체 문제가 아니라 그것이 설치하는 Calico 버전의 한계입니다."

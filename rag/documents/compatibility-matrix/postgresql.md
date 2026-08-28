@@ -32,19 +32,19 @@ compatibility_matrix:
       recommendation: "Kubernetes 업그레이드와 별개로 PostgreSQL을 15.x 최신 patch로 우선 업그레이드하세요(postgresql.org 릴리스 노트 확인)."
     - target_kubernetes_minor: "1.33"
       status: WARNING
-      reason: "1.32와 동일한 사유(patch 지연)입니다."
+      reason: "PostgreSQL 15 major 라인 자체는 2027-11-11까지 지원되지만, 현재 버전(15.3.0)은 최신 patch(15.19) 대비 3년 이상, 16개 이상의 patch release가 뒤처져 있어 그 사이의 보안 수정이 누락되어 있을 가능성이 높습니다. Kubernetes 버전과의 직접적 결합은 없습니다."
       recommendation: "PostgreSQL을 15.x 최신 patch로 업그레이드하세요."
     - target_kubernetes_minor: "1.34"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "PostgreSQL 15 major 라인 자체는 2027-11-11까지 지원되지만, 현재 버전(15.3.0)은 최신 patch(15.19) 대비 3년 이상, 16개 이상의 patch release가 뒤처져 있어 그 사이의 보안 수정이 누락되어 있을 가능성이 높습니다. Kubernetes 버전과의 직접적 결합은 없습니다."
       recommendation: "PostgreSQL을 15.x 최신 patch로 업그레이드하세요."
     - target_kubernetes_minor: "1.35"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "PostgreSQL 15 major 라인 자체는 2027-11-11까지 지원되지만, 현재 버전(15.3.0)은 최신 patch(15.19) 대비 3년 이상, 16개 이상의 patch release가 뒤처져 있어 그 사이의 보안 수정이 누락되어 있을 가능성이 높습니다. Kubernetes 버전과의 직접적 결합은 없습니다."
       recommendation: "PostgreSQL을 15.x 최신 patch로 업그레이드하세요."
     - target_kubernetes_minor: "1.36"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "PostgreSQL 15 major 라인 자체는 2027-11-11까지 지원되지만, 현재 버전(15.3.0)은 최신 patch(15.19) 대비 3년 이상, 16개 이상의 patch release가 뒤처져 있어 그 사이의 보안 수정이 누락되어 있을 가능성이 높습니다. Kubernetes 버전과의 직접적 결합은 없습니다."
       recommendation: "PostgreSQL을 15.x 최신 patch로 업그레이드하세요."
 ```
 

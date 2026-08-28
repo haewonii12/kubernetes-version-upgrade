@@ -42,8 +42,8 @@ compatibility_matrix:
       recommendation: "특별한 사유가 없다면 kubeadm의 자동 CoreDNS 업그레이드를 그대로 따르세요(직접 관리 중인 커스텀 CoreDNS 설정이 있다면 Corefile ConfigMap이 덮어써지지 않는지 upgrade 전후로 확인)."
     - target_kubernetes_minor: "1.34"
       status: WARNING
-      reason: "kubeadm 1.34의 기본 배포 버전은 v1.12.1입니다. 1.33과 동일한 사유."
-      recommendation: "1.33과 동일합니다."
+      reason: "kubeadm 1.34의 기본 배포 CoreDNS 버전은 v1.12.1입니다. CoreDNS 자체는 API 호환성 문제로 깨지지 않지만, kubeadm upgrade apply 시 자동으로 v1.12.1로 갱신되므로 현재 v1.11.3을 그대로 유지하려면 --skip-phases addon/coredns가 필요합니다."
+      recommendation: "특별한 사유가 없다면 kubeadm의 자동 CoreDNS 업그레이드를 그대로 따르세요(직접 관리 중인 커스텀 CoreDNS 설정이 있다면 Corefile ConfigMap이 덮어써지지 않는지 upgrade 전후로 확인)."
     - target_kubernetes_minor: "1.35"
       status: WARNING
       reason: "kubeadm 1.35의 기본 배포 버전은 v1.13.1로, 현재 버전(v1.11.3)과 두 minor 이상 격차가 벌어집니다."

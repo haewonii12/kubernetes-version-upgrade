@@ -68,19 +68,19 @@ compatibility_matrix:
       recommendation: "Argo CD 3.4 이상(v1.32~v1.35 테스트됨)으로 업그레이드 후 진행하세요."
     - target_kubernetes_minor: "1.33"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
-      recommendation: "Argo CD 3.4 이상으로 업그레이드 후 진행하세요."
+      reason: "Argo CD 2.12.x의 공식 테스트 범위는 Kubernetes v1.26~v1.29이며 1.33은 포함되지 않습니다. 버전 자체도 최근 3개 minor 패치 정책 기준 EOL 상태입니다."
+      recommendation: "Argo CD 3.4 이상(v1.32~v1.35 테스트됨)으로 업그레이드 후 진행하세요."
     - target_kubernetes_minor: "1.34"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
-      recommendation: "Argo CD 3.4 이상으로 업그레이드 후 진행하세요."
+      reason: "Argo CD 2.12.x의 공식 테스트 범위는 Kubernetes v1.26~v1.29이며 1.34는 포함되지 않습니다. 버전 자체도 최근 3개 minor 패치 정책 기준 EOL 상태입니다."
+      recommendation: "Argo CD 3.4 이상(v1.32~v1.35 테스트됨)으로 업그레이드 후 진행하세요."
     - target_kubernetes_minor: "1.35"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "Argo CD 2.12.x의 공식 테스트 범위는 Kubernetes v1.26~v1.29이며 1.35는 포함되지 않습니다. 버전 자체도 최근 3개 minor 패치 정책 기준 EOL 상태입니다."
       recommendation: "Argo CD 3.4 이상(v1.32~v1.35 테스트됨)으로 업그레이드 후 진행하세요."
     - target_kubernetes_minor: "1.36"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다. 확인된 범위 중 1.36을 커버하는 것은 3.5뿐입니다."
+      reason: "Argo CD 2.12.x의 공식 테스트 범위는 Kubernetes v1.26~v1.29이며 1.36은 포함되지 않습니다. 버전 자체도 최근 3개 minor 패치 정책 기준 EOL 상태이며, 확인된 3.x 범위 중 1.36을 커버하는 것은 3.5뿐입니다."
       recommendation: "Argo CD 3.5 이상(v1.33~v1.36 테스트됨)으로 업그레이드 후 진행하세요."
 ```
 

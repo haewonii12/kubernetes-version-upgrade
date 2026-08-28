@@ -37,18 +37,18 @@ compatibility_matrix:
       recommendation: "장기적으로 cgroup v2 전환(커널 파라미터 변경만으로 가능) 계획을 세우세요."
     - target_kubernetes_minor: "1.33"
       status: WARNING
-      reason: "1.32와 동일합니다."
+      reason: "RHEL 8 기본값인 cgroup v1은 이 시점까지는 kubelet 기동에 문제가 없으나, Kubernetes의 cgroup v1 'maintained mode'(1.31부터) 상태입니다."
     - target_kubernetes_minor: "1.34"
       status: WARNING
-      reason: "1.32와 동일합니다."
+      reason: "RHEL 8 기본값인 cgroup v1은 이 시점까지는 kubelet 기동에 문제가 없으나, Kubernetes의 cgroup v1 'maintained mode'(1.31부터) 상태입니다."
     - target_kubernetes_minor: "1.35"
       status: INCOMPATIBLE
       reason: "cgroup v1이 기본값인 RHEL 8 노드에서는, Kubernetes 1.35의 kubelet 기본 설정(FailCgroupV1=true) 때문에 kubelet이 기동을 거부합니다."
       recommendation: "RHEL 8에서 systemd.unified_cgroup_hierarchy=1 커널 파라미터로 cgroup v2로 전환하거나(OS 재설치 불필요), kubelet 설정에서 failCgroupV1: false로 임시 override하세요(장기 지원 경로 아님)."
     - target_kubernetes_minor: "1.36"
       status: INCOMPATIBLE
-      reason: "1.35와 동일한 사유입니다."
-      recommendation: "1.35와 동일합니다."
+      reason: "cgroup v1이 기본값인 RHEL 8 노드에서는 Kubernetes 1.35+의 kubelet 기본 설정(FailCgroupV1=true) 때문에 kubelet이 기동을 거부합니다."
+      recommendation: "RHEL 8에서 systemd.unified_cgroup_hierarchy=1 커널 파라미터로 cgroup v2로 전환하거나(OS 재설치 불필요), kubelet 설정에서 failCgroupV1: false로 임시 override하세요(장기 지원 경로 아님)."
 ```
 
 ## RHEL 9.x 계열
@@ -74,7 +74,7 @@ compatibility_matrix:
       reason: "cgroup v2가 기본값이라 kubelet 기본 거부(FailCgroupV1) 영향을 받지 않습니다."
     - target_kubernetes_minor: "1.36"
       status: COMPATIBLE
-      reason: "1.35와 동일합니다."
+      reason: "cgroup v2가 기본값이라 kubelet 기본 거부(FailCgroupV1) 영향을 받지 않습니다."
 ```
 
 ## 출처

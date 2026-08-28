@@ -32,7 +32,7 @@ compatibility_matrix:
       recommendation: "kube-state-metrics를 v2.16.0 이상으로 업그레이드하는 것을 권장합니다."
     - target_kubernetes_minor: "1.33"
       status: WARNING
-      reason: "1.32와 동일한 사유이며, 공식 매트릭스 기준 1.33 대상 릴리스는 v2.17.0입니다."
+      reason: "공식 Compatibility Matrix(README)에 남아있는 최신 5개 릴리스 목록에 v2.13.0이 더 이상 포함되어 있지 않습니다(가장 오래된 유지 행은 v2.16.0/client-go v1.32). 확인된 비호환 사례는 아니지만 공식 추적 대상 밖입니다. 공식 매트릭스 기준 1.33 대상 릴리스는 v2.17.0입니다."
       recommendation: "kube-state-metrics를 v2.17.0 이상으로 업그레이드하는 것을 권장합니다."
     - target_kubernetes_minor: "1.34"
       status: WARNING

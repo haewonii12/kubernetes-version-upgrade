@@ -31,19 +31,19 @@ compatibility_matrix:
       recommendation: "Kubernetes 업그레이드와 별개로 Redis를 현재 유지보수 중인 major 라인(8.x)으로 업그레이드하세요."
     - target_kubernetes_minor: "1.33"
       status: WARNING
-      reason: "1.32와 동일한 사유(EOL된 major 라인)입니다."
+      reason: "Redis 7.0 라인은 2024-07-29에 공식 EOL 처리되어 더 이상 보안 패치를 받지 않습니다. 이 클러스터가 쓰는 7.0.15-alpine은 EOL된 major 라인의 patch로, major 버전 자체를 8.x로 올려야 합니다(단순 patch 업그레이드로는 해결 불가). Kubernetes 버전과의 직접적 결합은 없습니다."
       recommendation: "Redis를 8.x로 업그레이드하세요."
     - target_kubernetes_minor: "1.34"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "Redis 7.0 라인은 2024-07-29에 공식 EOL 처리되어 더 이상 보안 패치를 받지 않습니다. 이 클러스터가 쓰는 7.0.15-alpine은 EOL된 major 라인의 patch로, major 버전 자체를 8.x로 올려야 합니다(단순 patch 업그레이드로는 해결 불가). Kubernetes 버전과의 직접적 결합은 없습니다."
       recommendation: "Redis를 8.x로 업그레이드하세요."
     - target_kubernetes_minor: "1.35"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "Redis 7.0 라인은 2024-07-29에 공식 EOL 처리되어 더 이상 보안 패치를 받지 않습니다. 이 클러스터가 쓰는 7.0.15-alpine은 EOL된 major 라인의 patch로, major 버전 자체를 8.x로 올려야 합니다(단순 patch 업그레이드로는 해결 불가). Kubernetes 버전과의 직접적 결합은 없습니다."
       recommendation: "Redis를 8.x로 업그레이드하세요."
     - target_kubernetes_minor: "1.36"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "Redis 7.0 라인은 2024-07-29에 공식 EOL 처리되어 더 이상 보안 패치를 받지 않습니다. 이 클러스터가 쓰는 7.0.15-alpine은 EOL된 major 라인의 patch로, major 버전 자체를 8.x로 올려야 합니다(단순 patch 업그레이드로는 해결 불가). Kubernetes 버전과의 직접적 결합은 없습니다."
       recommendation: "Redis를 8.x로 업그레이드하세요."
 ```
 

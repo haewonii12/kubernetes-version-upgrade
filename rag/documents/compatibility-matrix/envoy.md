@@ -25,13 +25,13 @@ compatibility_matrix:
       reason: "Envoy Gateway v1.8 공식 Compatibility Matrix가 명시한 번들 Envoy 버전이며, 해당 릴리스가 Kubernetes 1.32를 지원 버전으로 명시합니다(envoyproxy-gateway.md 참고)."
     - target_kubernetes_minor: "1.33"
       status: COMPATIBLE
-      reason: "동일한 사유(Envoy Gateway v1.8이 1.33을 지원)."
+      reason: "Envoy Gateway v1.8 공식 Compatibility Matrix가 명시한 번들 Envoy 버전이며, 해당 릴리스가 Kubernetes 1.33을 지원 버전으로 명시합니다(envoyproxy-gateway.md 참고)."
     - target_kubernetes_minor: "1.34"
       status: COMPATIBLE
-      reason: "동일한 사유(Envoy Gateway v1.8이 1.34를 지원)."
+      reason: "Envoy Gateway v1.8 공식 Compatibility Matrix가 명시한 번들 Envoy 버전이며, 해당 릴리스가 Kubernetes 1.34를 지원 버전으로 명시합니다(envoyproxy-gateway.md 참고)."
     - target_kubernetes_minor: "1.35"
       status: COMPATIBLE
-      reason: "동일한 사유(Envoy Gateway v1.8이 1.35를 지원)."
+      reason: "Envoy Gateway v1.8 공식 Compatibility Matrix가 명시한 번들 Envoy 버전이며, 해당 릴리스가 Kubernetes 1.35를 지원 버전으로 명시합니다(envoyproxy-gateway.md 참고)."
     - target_kubernetes_minor: "1.36"
       status: WARNING
       reason: "Envoy Gateway v1.8의 공식 지원 범위(1.32~1.35)에 1.36이 포함되어 있지 않습니다 — Envoy 자체 문제가 아니라 이를 배포하는 Envoy Gateway 컨트롤 플레인의 한계입니다."

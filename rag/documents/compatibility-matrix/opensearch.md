@@ -28,16 +28,16 @@ compatibility_matrix:
       reason: "OpenSearch는 Kubernetes API와 직접 결합되지 않으며, 현재 버전(3.8.0)은 2026-08 기준 활발히 유지보수 중인 최신 릴리스 트레인에 속합니다."
     - target_kubernetes_minor: "1.33"
       status: COMPATIBLE
-      reason: "1.32와 동일합니다."
+      reason: "OpenSearch는 Kubernetes API와 직접 결합되지 않으며, 현재 버전(3.8.0)은 2026-08 기준 활발히 유지보수 중인 최신 릴리스 트레인에 속합니다."
     - target_kubernetes_minor: "1.34"
       status: COMPATIBLE
-      reason: "1.32와 동일합니다."
+      reason: "OpenSearch는 Kubernetes API와 직접 결합되지 않으며, 현재 버전(3.8.0)은 2026-08 기준 활발히 유지보수 중인 최신 릴리스 트레인에 속합니다."
     - target_kubernetes_minor: "1.35"
       status: COMPATIBLE
-      reason: "1.32와 동일합니다."
+      reason: "OpenSearch는 Kubernetes API와 직접 결합되지 않으며, 현재 버전(3.8.0)은 2026-08 기준 활발히 유지보수 중인 최신 릴리스 트레인에 속합니다."
     - target_kubernetes_minor: "1.36"
       status: COMPATIBLE
-      reason: "1.32와 동일합니다. 다만 향후 목표 버전 도달 시점이 늦어질수록 OpenSearch 3.8.0도 그만큼 오래된 버전이 되므로, 업그레이드 시점에 최신 patch 여부를 재확인하세요."
+      reason: "OpenSearch는 Kubernetes API와 직접 결합되지 않으며, 현재 버전(3.8.0)은 2026-08 기준 활발히 유지보수 중인 최신 릴리스 트레인에 속합니다. 다만 향후 목표 버전 도달 시점이 늦어질수록 3.8.0도 그만큼 오래된 버전이 되므로, 업그레이드 시점에 최신 patch 여부를 재확인하세요."
 ```
 
 ## 출처

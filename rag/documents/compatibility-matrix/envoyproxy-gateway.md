@@ -23,13 +23,13 @@ compatibility_matrix:
       reason: "Envoy Gateway 공식 Compatibility Matrix에 v1.8이 Kubernetes 1.32를 지원 버전으로 명시하고 있습니다."
     - target_kubernetes_minor: "1.33"
       status: COMPATIBLE
-      reason: "동일한 표에 Kubernetes 1.33이 지원 버전으로 명시되어 있습니다."
+      reason: "Envoy Gateway 공식 Compatibility Matrix에 v1.8이 Kubernetes 1.33을 지원 버전으로 명시하고 있습니다(v1.8 지원 범위: 1.32~1.35)."
     - target_kubernetes_minor: "1.34"
       status: COMPATIBLE
-      reason: "동일한 표에 Kubernetes 1.34가 지원 버전으로 명시되어 있습니다."
+      reason: "Envoy Gateway 공식 Compatibility Matrix에 v1.8이 Kubernetes 1.34를 지원 버전으로 명시하고 있습니다(v1.8 지원 범위: 1.32~1.35)."
     - target_kubernetes_minor: "1.35"
       status: COMPATIBLE
-      reason: "동일한 표에 Kubernetes 1.35가 지원 버전으로 명시되어 있습니다. 다만 Envoy Gateway v1.8 자체의 EOL이 2026-11-08로 멀지 않았습니다."
+      reason: "Envoy Gateway 공식 Compatibility Matrix에 v1.8이 Kubernetes 1.35를 지원 버전으로 명시하고 있습니다(v1.8 지원 범위: 1.32~1.35). 다만 Envoy Gateway v1.8 자체의 EOL이 2026-11-08로 멀지 않았습니다."
       recommendation: "v1.8 EOL(2026-11-08) 전에 다음 마이너 릴리스로 업그레이드 계획을 세우세요."
     - target_kubernetes_minor: "1.36"
       status: WARNING

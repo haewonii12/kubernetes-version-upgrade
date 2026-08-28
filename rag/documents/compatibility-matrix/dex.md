@@ -31,19 +31,19 @@ compatibility_matrix:
       recommendation: "Kubernetes 업그레이드와 별개로 Dex를 최신 안정 버전으로 우선 업그레이드하세요(dexidp/dex GitHub Releases 확인)."
     - target_kubernetes_minor: "1.33"
       status: WARNING
-      reason: "1.32와 동일한 사유(릴리스 지연)입니다."
+      reason: "Dex는 명시적 LTS/EOL 정책이 확인되지 않는 커뮤니티 프로젝트이며, 현재 버전(2.38.0)이 최신(v2.45.0) 대비 7개 이상 minor 릴리스 뒤처져 있어 그 사이의 보안 수정을 놓쳤을 가능성이 있습니다. Kubernetes 버전과의 직접적 결합은 없습니다."
       recommendation: "Dex를 최신 버전으로 업그레이드하세요."
     - target_kubernetes_minor: "1.34"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "Dex는 명시적 LTS/EOL 정책이 확인되지 않는 커뮤니티 프로젝트이며, 현재 버전(2.38.0)이 최신(v2.45.0) 대비 7개 이상 minor 릴리스 뒤처져 있어 그 사이의 보안 수정을 놓쳤을 가능성이 있습니다. Kubernetes 버전과의 직접적 결합은 없습니다."
       recommendation: "Dex를 최신 버전으로 업그레이드하세요."
     - target_kubernetes_minor: "1.35"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "Dex는 명시적 LTS/EOL 정책이 확인되지 않는 커뮤니티 프로젝트이며, 현재 버전(2.38.0)이 최신(v2.45.0) 대비 7개 이상 minor 릴리스 뒤처져 있어 그 사이의 보안 수정을 놓쳤을 가능성이 있습니다. Kubernetes 버전과의 직접적 결합은 없습니다."
       recommendation: "Dex를 최신 버전으로 업그레이드하세요."
     - target_kubernetes_minor: "1.36"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "Dex는 명시적 LTS/EOL 정책이 확인되지 않는 커뮤니티 프로젝트이며, 현재 버전(2.38.0)이 최신(v2.45.0) 대비 7개 이상 minor 릴리스 뒤처져 있어 그 사이의 보안 수정을 놓쳤을 가능성이 있습니다. Kubernetes 버전과의 직접적 결합은 없습니다."
       recommendation: "Dex를 최신 버전으로 업그레이드하세요."
 ```
 

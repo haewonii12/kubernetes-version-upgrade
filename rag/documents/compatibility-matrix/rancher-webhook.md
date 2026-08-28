@@ -24,20 +24,20 @@ compatibility_matrix:
       recommendation: "Rancher를 먼저 업그레이드하세요 — rancher-webhook은 Rancher 업그레이드에 종속되어 함께 갱신됩니다."
     - target_kubernetes_minor: "1.33"
       status: INCOMPATIBLE
-      reason: "1.32와 동일한 사유."
-      recommendation: "1.32와 동일합니다."
+      reason: "rancher-webhook 0.3.4는 Rancher 2.7.x 배포 사이클에 종속된 컴포넌트로 독립적인 K8s 지원 범위가 없습니다. Rancher 2.7.x의 인증 범위(1.23~1.25)와 EOL 상태를 물려받습니다 — 근거는 compatibility-matrix/rancher.md 참고."
+      recommendation: "Rancher를 먼저 업그레이드하세요 — rancher-webhook은 Rancher 업그레이드에 종속되어 함께 갱신됩니다."
     - target_kubernetes_minor: "1.34"
       status: INCOMPATIBLE
-      reason: "1.32와 동일한 사유."
-      recommendation: "1.32와 동일합니다."
+      reason: "rancher-webhook 0.3.4는 Rancher 2.7.x 배포 사이클에 종속된 컴포넌트로 독립적인 K8s 지원 범위가 없습니다. Rancher 2.7.x의 인증 범위(1.23~1.25)와 EOL 상태를 물려받습니다 — 근거는 compatibility-matrix/rancher.md 참고."
+      recommendation: "Rancher를 먼저 업그레이드하세요 — rancher-webhook은 Rancher 업그레이드에 종속되어 함께 갱신됩니다."
     - target_kubernetes_minor: "1.35"
       status: INCOMPATIBLE
-      reason: "1.32와 동일한 사유."
-      recommendation: "1.32와 동일합니다."
+      reason: "rancher-webhook 0.3.4는 Rancher 2.7.x 배포 사이클에 종속된 컴포넌트로 독립적인 K8s 지원 범위가 없습니다. Rancher 2.7.x의 인증 범위(1.23~1.25)와 EOL 상태를 물려받습니다 — 근거는 compatibility-matrix/rancher.md 참고."
+      recommendation: "Rancher를 먼저 업그레이드하세요 — rancher-webhook은 Rancher 업그레이드에 종속되어 함께 갱신됩니다."
     - target_kubernetes_minor: "1.36"
       status: INCOMPATIBLE
-      reason: "1.32와 동일한 사유."
-      recommendation: "1.32와 동일합니다."
+      reason: "rancher-webhook 0.3.4는 Rancher 2.7.x 배포 사이클에 종속된 컴포넌트로 독립적인 K8s 지원 범위가 없습니다. Rancher 2.7.x의 인증 범위(1.23~1.25)와 EOL 상태를 물려받습니다 — 근거는 compatibility-matrix/rancher.md 참고."
+      recommendation: "Rancher를 먼저 업그레이드하세요 — rancher-webhook은 Rancher 업그레이드에 종속되어 함께 갱신됩니다."
 ```
 
 ## 출처

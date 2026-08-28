@@ -24,20 +24,20 @@ compatibility_matrix:
       recommendation: "클러스터 업그레이드 전 Velero를 현재 지원 대상 최신 버전으로 먼저 업그레이드하세요 — 백업/복원 도구 특성상 구버전으로 방치하면 새 클러스터 버전의 볼륨 스냅샷/CRD 동작과 어긋날 위험이 큽니다."
     - target_kubernetes_minor: "1.33"
       status: WARNING
-      reason: "동일한 사유입니다."
-      recommendation: "동일합니다."
+      reason: "Velero 1.12.x의 공식 테스트 대상 Kubernetes 버전(1.25~1.27)에 이 목표 버전은 포함되지 않습니다. 또한 Velero 지원 정책(n-1)상 1.12는 이미 지원 대상에서 벗어나 있습니다."
+      recommendation: "클러스터 업그레이드 전 Velero를 현재 지원 대상 최신 버전으로 먼저 업그레이드하세요 — 백업/복원 도구 특성상 구버전으로 방치하면 새 클러스터 버전의 볼륨 스냅샷/CRD 동작과 어긋날 위험이 큽니다."
     - target_kubernetes_minor: "1.34"
       status: WARNING
-      reason: "동일한 사유입니다."
-      recommendation: "동일합니다."
+      reason: "Velero 1.12.x의 공식 테스트 대상 Kubernetes 버전(1.25~1.27)에 이 목표 버전은 포함되지 않습니다. 또한 Velero 지원 정책(n-1)상 1.12는 이미 지원 대상에서 벗어나 있습니다."
+      recommendation: "클러스터 업그레이드 전 Velero를 현재 지원 대상 최신 버전으로 먼저 업그레이드하세요 — 백업/복원 도구 특성상 구버전으로 방치하면 새 클러스터 버전의 볼륨 스냅샷/CRD 동작과 어긋날 위험이 큽니다."
     - target_kubernetes_minor: "1.35"
       status: WARNING
-      reason: "동일한 사유입니다."
-      recommendation: "동일합니다."
+      reason: "Velero 1.12.x의 공식 테스트 대상 Kubernetes 버전(1.25~1.27)에 이 목표 버전은 포함되지 않습니다. 또한 Velero 지원 정책(n-1)상 1.12는 이미 지원 대상에서 벗어나 있습니다."
+      recommendation: "클러스터 업그레이드 전 Velero를 현재 지원 대상 최신 버전으로 먼저 업그레이드하세요 — 백업/복원 도구 특성상 구버전으로 방치하면 새 클러스터 버전의 볼륨 스냅샷/CRD 동작과 어긋날 위험이 큽니다."
     - target_kubernetes_minor: "1.36"
       status: WARNING
-      reason: "동일한 사유입니다."
-      recommendation: "동일합니다."
+      reason: "Velero 1.12.x의 공식 테스트 대상 Kubernetes 버전(1.25~1.27)에 이 목표 버전은 포함되지 않습니다. 또한 Velero 지원 정책(n-1)상 1.12는 이미 지원 대상에서 벗어나 있습니다."
+      recommendation: "클러스터 업그레이드 전 Velero를 현재 지원 대상 최신 버전으로 먼저 업그레이드하세요 — 백업/복원 도구 특성상 구버전으로 방치하면 새 클러스터 버전의 볼륨 스냅샷/CRD 동작과 어긋날 위험이 큽니다."
 ```
 
 ## 출처

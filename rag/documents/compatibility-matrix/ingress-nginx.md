@@ -60,19 +60,19 @@ compatibility_matrix:
       recommendation: "Kubernetes 버전과 무관하게 Gateway API 또는 다른 유지보수 중인 Ingress Controller로 마이그레이션을 최우선으로 계획하세요."
     - target_kubernetes_minor: "1.33"
       status: WARNING
-      reason: "1.32와 동일한 사유(테스트 범위 1.26~1.30, 프로젝트 은퇴)입니다."
+      reason: "ingress-nginx 1.11.x 공식 Support Versions 표 기준 테스트 대상은 Kubernetes 1.26~1.30까지이며 이 목표 버전은 포함되지 않습니다. 프로젝트 자체도 2026-03 은퇴(retired)해 향후 검증 계획이 없습니다."
       recommendation: "Gateway API 또는 다른 유지보수 중인 Ingress Controller로 마이그레이션하세요."
     - target_kubernetes_minor: "1.34"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "ingress-nginx 1.11.x 공식 Support Versions 표 기준 테스트 대상은 Kubernetes 1.26~1.30까지이며 이 목표 버전은 포함되지 않습니다. 프로젝트 자체도 2026-03 은퇴(retired)해 향후 검증 계획이 없습니다."
       recommendation: "Gateway API 또는 다른 유지보수 중인 Ingress Controller로 마이그레이션하세요."
     - target_kubernetes_minor: "1.35"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "ingress-nginx 1.11.x 공식 Support Versions 표 기준 테스트 대상은 Kubernetes 1.26~1.30까지이며 이 목표 버전은 포함되지 않습니다. 프로젝트 자체도 2026-03 은퇴(retired)해 향후 검증 계획이 없습니다."
       recommendation: "Gateway API 또는 다른 유지보수 중인 Ingress Controller로 마이그레이션하세요."
     - target_kubernetes_minor: "1.36"
       status: WARNING
-      reason: "1.32와 동일한 사유입니다."
+      reason: "ingress-nginx 1.11.x 공식 Support Versions 표 기준 테스트 대상은 Kubernetes 1.26~1.30까지이며 이 목표 버전은 포함되지 않습니다. 프로젝트 자체도 2026-03 은퇴(retired)해 향후 검증 계획이 없습니다."
       recommendation: "Gateway API 또는 다른 유지보수 중인 Ingress Controller로 마이그레이션하세요."
 ```
 

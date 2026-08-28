@@ -32,20 +32,20 @@ compatibility_matrix:
       recommendation: "Kubernetes 업그레이드 전에 Rancher를 현재 지원되는 최신 버전(2.7 이후 라인)으로 먼저 업그레이드해야 합니다. Rancher 자체 업그레이드 경로는 SUSE 공식 문서를 따르세요."
     - target_kubernetes_minor: "1.33"
       status: INCOMPATIBLE
-      reason: "1.32와 동일한 사유(인증 범위 초과 + 자체 EOL)."
-      recommendation: "1.32와 동일합니다."
+      reason: "Rancher 2.7.4 공식 Support Matrix의 인증 범위는 Kubernetes 1.23~1.25까지이며, Rancher 2.7 라인 자체도 이미 EOL(Limited Support 종료 2024-11-18)입니다."
+      recommendation: "Kubernetes 업그레이드 전에 Rancher를 현재 지원되는 최신 버전(2.7 이후 라인)으로 먼저 업그레이드해야 합니다. Rancher 자체 업그레이드 경로는 SUSE 공식 문서를 따르세요."
     - target_kubernetes_minor: "1.34"
       status: INCOMPATIBLE
-      reason: "1.32와 동일한 사유."
-      recommendation: "1.32와 동일합니다."
+      reason: "Rancher 2.7.4 공식 Support Matrix의 인증 범위는 Kubernetes 1.23~1.25까지이며, Rancher 2.7 라인 자체도 이미 EOL(Limited Support 종료 2024-11-18)입니다."
+      recommendation: "Kubernetes 업그레이드 전에 Rancher를 현재 지원되는 최신 버전(2.7 이후 라인)으로 먼저 업그레이드해야 합니다. Rancher 자체 업그레이드 경로는 SUSE 공식 문서를 따르세요."
     - target_kubernetes_minor: "1.35"
       status: INCOMPATIBLE
-      reason: "1.32와 동일한 사유."
-      recommendation: "1.32와 동일합니다."
+      reason: "Rancher 2.7.4 공식 Support Matrix의 인증 범위는 Kubernetes 1.23~1.25까지이며, Rancher 2.7 라인 자체도 이미 EOL(Limited Support 종료 2024-11-18)입니다."
+      recommendation: "Kubernetes 업그레이드 전에 Rancher를 현재 지원되는 최신 버전(2.7 이후 라인)으로 먼저 업그레이드해야 합니다. Rancher 자체 업그레이드 경로는 SUSE 공식 문서를 따르세요."
     - target_kubernetes_minor: "1.36"
       status: INCOMPATIBLE
-      reason: "1.32와 동일한 사유."
-      recommendation: "1.32와 동일합니다."
+      reason: "Rancher 2.7.4 공식 Support Matrix의 인증 범위는 Kubernetes 1.23~1.25까지이며, Rancher 2.7 라인 자체도 이미 EOL(Limited Support 종료 2024-11-18)입니다."
+      recommendation: "Kubernetes 업그레이드 전에 Rancher를 현재 지원되는 최신 버전(2.7 이후 라인)으로 먼저 업그레이드해야 합니다. Rancher 자체 업그레이드 경로는 SUSE 공식 문서를 따르세요."
 ```
 
 ## 출처

@@ -32,11 +32,11 @@ compatibility_matrix:
       recommendation: "Kubernetes 버전과 무관하게 containerd를 1.7(LTS, EOS 2026-09-01) 이상으로 우선 업그레이드하세요."
     - target_kubernetes_minor: "1.33"
       status: WARNING
-      reason: "1.32와 동일한 사유(1.6 브랜치 EOL)입니다."
-      recommendation: "1.32와 동일합니다."
+      reason: "CRI v1을 지원해 kubelet과 기능적으로는 정상 통신하지만, containerd 1.6 브랜치는 2025-08-23에 이미 End of Life 처리되어 1년 넘게 보안 패치를 받지 못하고 있습니다."
+      recommendation: "Kubernetes 버전과 무관하게 containerd를 1.7(LTS, EOS 2026-09-01) 이상으로 우선 업그레이드하세요."
     - target_kubernetes_minor: "1.34"
       status: WARNING
-      reason: "1.32와 동일한 사유이며, 추가로 cgroup driver 자동 감지(KubeletCgroupDriverFromCRI)도 containerd 2.0+가 필요해 1.6.x에서는 수동 설정을 유지해야 합니다."
+      reason: "CRI v1을 지원해 kubelet과 기능적으로는 정상 통신하지만, containerd 1.6 브랜치는 2025-08-23에 이미 End of Life 처리되어 1년 넘게 보안 패치를 받지 못하고 있습니다. 추가로 cgroup driver 자동 감지(KubeletCgroupDriverFromCRI)는 containerd 2.0+가 필요해 1.6.x에서는 수동 설정을 유지해야 합니다."
       recommendation: "containerd 2.x 업그레이드를 계획하세요."
     - target_kubernetes_minor: "1.35"
       status: WARNING

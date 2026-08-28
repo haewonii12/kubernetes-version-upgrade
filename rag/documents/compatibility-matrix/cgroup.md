@@ -33,18 +33,18 @@ compatibility_matrix:
       recommendation: "cgroup v2 전환 로드맵을 미리 수립하세요."
     - target_kubernetes_minor: "1.33"
       status: WARNING
-      reason: "1.32와 동일합니다."
+      reason: "cgroup v1은 1.31부터 'maintained mode'로 전환되어 신규 기능 지원은 중단되었지만, kubelet 기동 자체는 정상입니다."
     - target_kubernetes_minor: "1.34"
       status: WARNING
-      reason: "1.32와 동일합니다."
+      reason: "cgroup v1은 1.31부터 'maintained mode'로 전환되어 신규 기능 지원은 중단되었지만, kubelet 기동 자체는 정상입니다."
     - target_kubernetes_minor: "1.35"
       status: INCOMPATIBLE
       reason: "cgroup v1이 공식 Deprecated 상태로 전환되었고, kubelet의 failCgroupV1 기본값이 true가 되어 cgroup v1 전용 노드에서 kubelet이 기본 설정으로 기동을 거부합니다."
       recommendation: "cgroup v2로 전환하세요. 즉시 전환이 어렵다면 kubelet 설정에서 failCgroupV1: false로 임시 override할 수 있으나, 장기 지원 경로가 아니므로 전환 계획을 병행하세요."
     - target_kubernetes_minor: "1.36"
       status: INCOMPATIBLE
-      reason: "1.35와 동일한 사유이며, 완전 제거(Removed) 시점이 아직 공식 문서에 명시되지 않아 override 경로가 언제까지 유효할지도 불확실합니다."
-      recommendation: "1.35와 동일합니다."
+      reason: "cgroup v1이 공식 Deprecated 상태이고 kubelet의 failCgroupV1 기본값이 true라 cgroup v1 전용 노드에서 kubelet이 기본 설정으로 기동을 거부합니다. 게다가 완전 제거(Removed) 시점이 아직 공식 문서에 명시되지 않아 override 경로가 언제까지 유효할지도 불확실합니다."
+      recommendation: "cgroup v2로 전환하세요. 즉시 전환이 어렵다면 kubelet 설정에서 failCgroupV1: false로 임시 override할 수 있으나, 장기 지원 경로가 아니므로 전환 계획을 병행하세요."
 ```
 
 ## cgroup v2
@@ -68,7 +68,7 @@ compatibility_matrix:
       reason: "cgroup v2는 kubelet의 failCgroupV1 기본 동작 영향을 받지 않습니다."
     - target_kubernetes_minor: "1.36"
       status: COMPATIBLE
-      reason: "1.35와 동일합니다."
+      reason: "cgroup v2는 kubelet의 failCgroupV1 기본 동작 영향을 받지 않습니다."
 ```
 
 ## 출처
