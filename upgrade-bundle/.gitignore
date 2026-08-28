@@ -1,0 +1,5 @@
+# 실제 아티팩트(RPM/이미지 tar/바이너리)는 용량이 커서 커밋하지 않는다.
+# fetch.sh 가 채워 넣는다.
+artifacts/
+*.tar
+*.tar.gz
