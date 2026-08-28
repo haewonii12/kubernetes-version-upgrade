@@ -13,7 +13,7 @@
 | DRY | 동일한 kubectl 조회를 여러 Node/모듈에서 중복 호출하지 않도록 Collector 계층에서 캐싱·재사용 |
 | Modular / 책임 분리 | Collector(수집) ↔ Analyzer(판단) ↔ RAG(근거) ↔ Agent(orchestration) ↔ API/UI 는 서로의 내부 구현을 몰라도 되게 인터페이스로만 통신 |
 | Compatibility Rule 비하드코딩 | "Calico 3.30은 K8s 1.36과 호환" 같은 규칙은 코드가 아니라 RAG 문서(`rag/documents/`)에 존재. 코드는 오직 "검색 → 근거 있으면 판정, 없으면 UNKNOWN"만 수행 |
-| 폐쇄망 대응 | Runtime에 외부 인터넷 호출 없음. Release Note/Compatibility 자료는 사전에 RAG에 적재된 정적 문서만 사용 |
+| 폐쇄망 대응 | Runtime에 외부 인터넷 호출 없음. Release Note/Compatibility 자료는 사전에 RAG에 적재된 정적 문서만 사용. Docker 이미지 자체도 kubectl-ai 바이너리까지 빌드 시점에 구워넣어, 인터넷 되는 곳에서 빌드 → `docker save`/`docker load`로 반입하면 폐쇄망 안에서 추가 다운로드 없이 그대로 기동 가능 (`docker/export-images.sh`/`docker/load-images.sh`, README "폐쇄망 배포 방법" 참고) |
 
 ---
 

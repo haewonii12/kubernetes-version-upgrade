@@ -53,7 +53,9 @@ examples/   Mock Cluster Fixture (실제 클러스터 없이 데모 가능)
 
 - Python 3.12+, Node.js 20+ (Local 실행 시)
 - Docker / Docker Compose (Compose 실행 시)
-- 실제 클러스터 분석 시: [kubectl-ai](https://github.com/GoogleCloudPlatform/kubectl-ai) MCP 서버 바이너리와, Read-Only RBAC이 적용된 kubeconfig (`docker/mcp/rbac.yaml` 참고)
+- 실제 클러스터 분석 시: Read-Only RBAC이 적용된 kubeconfig (`docker/mcp/rbac.yaml` 참고). Local 실행이라면
+  [kubectl-ai](https://github.com/GoogleCloudPlatform/kubectl-ai) MCP 서버 바이너리도 직접 준비해야 하지만,
+  Docker Compose로 실행하면 백엔드 이미지 안에 이미 구워져 있어 별도 준비가 필요 없습니다.
 
 ## 실행 방법 — Docker Compose (권장)
 
@@ -62,6 +64,34 @@ docker compose up -d --build
 ```
 
 브라우저에서 `http://localhost:3000` 접속. 백엔드 API는 `http://localhost:8000`.
+
+## 폐쇄망 배포 방법
+
+인터넷이 되는 환경에서 이미지를 빌드해 tar로 내보낸 뒤, 폐쇄망으로 반입해서 그대로 실행합니다.
+kubectl-ai 바이너리도 빌드 시점에 백엔드 이미지 안에 구워지므로, 반입 후에는 추가 다운로드가
+전혀 필요 없습니다 — 컨테이너만 뜨면 real 모드 분석까지 바로 됩니다.
+
+**1. 인터넷이 되는 환경에서:**
+
+```bash
+git clone <repo> && cd k8s-upgrade-assistant
+docker/export-images.sh   # docker compose build + docker save → k8s-upgrade-images.tar
+```
+
+**2. 저장소 전체(특히 `k8s-upgrade-images.tar`, `docker-compose.yml`, `rag/documents/`)를 폐쇄망으로 반입**
+
+승인된 방법(내부망 파일 서버, 반입 매체 등)으로 옮깁니다.
+
+**3. 폐쇄망 안에서:**
+
+```bash
+docker/load-images.sh     # docker load로 이미지 반입
+docker compose up -d      # 바로 기동 (이미지가 이미 있으므로 --build 불필요)
+```
+
+이후 RAG 문서(`rag/documents/`)를 갱신할 때도 같은 방식입니다 — 문서만 폐쇄망 안에서 직접
+고치고 `docker compose restart backend`만 하면 되며(볼륨 마운트라 이미지 재반입 불필요),
+코드 자체가 바뀌었을 때만 1~3 과정을 다시 반복하면 됩니다.
 
 ## 실행 방법 — Local
 
