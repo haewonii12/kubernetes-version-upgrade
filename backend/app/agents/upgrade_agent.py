@@ -63,7 +63,7 @@ NODE_PROGRESS_MESSAGES: dict[str, str] = {
     "search_rag": "Release Note / kubeadm Upgrade Guide RAG 검색 중",
     "check_compatibility": "Compatibility 분석 중",
     "check_deprecated_api": "Deprecated / Removed API 검사 중",
-    "analyze_risk": "Risk 분석 및 Upgrade Readiness Score 계산 중",
+    "analyze_risk": "Risk 분석 및 업그레이드 준비 복잡도 계산 중",
     "generate_upgrade_path": "Upgrade Path 생성 중",
     "generate_upgrade_plan": "Version별 Upgrade Scenario 생성 중",
 }

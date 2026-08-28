@@ -119,13 +119,22 @@ export interface RiskFinding {
   related_upgrade_step: string | null;
 }
 
+export interface ComplexityFactor {
+  severity: RiskSeverity;
+  count: number;
+  weight: number;
+  points: number;
+}
+
 export interface ReadinessScore {
   score: number;
+  complexity: number;
   blocker_count: number;
   high_count: number;
   medium_count: number;
   low_count: number;
   info_count: number;
+  complexity_factors?: ComplexityFactor[];
 }
 
 export type DeprecatedAPIStatus = "OK" | "ACTION_REQUIRED" | "UPGRADE_BLOCKER" | "UNKNOWN";

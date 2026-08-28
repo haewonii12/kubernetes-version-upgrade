@@ -1,4 +1,12 @@
-import type { UpgradeReport } from "../../types/report";
+import type { ComplexityFactor, ReadinessScore, UpgradeReport } from "../../types/report";
+
+const SEVERITY_LABEL: Record<string, string> = {
+  BLOCKER: "BLOCKER",
+  HIGH: "HIGH",
+  MEDIUM: "MEDIUM",
+  LOW: "LOW",
+  INFO: "INFO",
+};
 
 /** Section 19: 분석 완료 후 Dashboard 결과 화면. */
 export default function OverviewPanel({ report }: { report: UpgradeReport }) {
@@ -20,11 +28,7 @@ export default function OverviewPanel({ report }: { report: UpgradeReport }) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="Current" value={`Kubernetes ${upgrade_plan.current_version}`} />
         <StatCard label="Target" value={`Kubernetes ${upgrade_plan.target_version}`} />
-        <StatCard
-          label="Upgrade Readiness"
-          value={`${readiness.score} / 100`}
-          accent={readiness.score < 50 ? "text-red-600" : readiness.score < 80 ? "text-amber-600" : "text-emerald-600"}
-        />
+        <ComplexityCard readiness={readiness} />
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -70,6 +74,67 @@ function StatCard({ label, value, accent }: { label: string; value: string; acce
     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</p>
       <p className={`mt-1 text-2xl font-bold ${accent ?? "text-slate-900"}`}>{value}</p>
+    </div>
+  );
+}
+
+function ComplexityCard({ readiness }: { readiness: ReadinessScore }) {
+  const c = readiness.complexity;
+  const accent = c >= 50 ? "text-red-600" : c >= 20 ? "text-amber-600" : "text-emerald-600";
+  const level = c >= 50 ? "복잡" : c >= 20 ? "보통" : "단순";
+  const factors: ComplexityFactor[] = readiness.complexity_factors ?? [];
+  const rawSum = factors.reduce((s, f) => s + f.points, 0);
+
+  return (
+    <div className="group relative rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-slate-400">
+        업그레이드 준비 복잡도
+        <span className="text-slate-300" aria-hidden>
+          ⓘ
+        </span>
+      </p>
+      <p className={`mt-1 text-2xl font-bold ${accent}`}>
+        {c}% <span className="text-sm font-medium">· {level}</span>
+      </p>
+      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+        <div
+          className={`h-full rounded-full ${c >= 50 ? "bg-red-500" : c >= 20 ? "bg-amber-400" : "bg-emerald-500"}`}
+          style={{ width: `${c}%` }}
+        />
+      </div>
+
+      <div className="pointer-events-none absolute left-0 top-full z-10 mt-2 w-80 rounded-lg border border-slate-200 bg-white p-3 text-left text-xs opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
+        <p className="text-slate-600">
+          발견된 Risk를 심각도별로 가중 합산한 값입니다 (0% = 특이사항 없음, 100% = 상한).
+          <span className="text-slate-400"> INFO는 반영하지 않습니다.</span>
+        </p>
+        {factors.length > 0 ? (
+          <table className="mt-2 w-full">
+            <tbody>
+              {factors.map((f) => (
+                <tr key={f.severity} className="text-slate-700">
+                  <td className="py-0.5 pr-2 font-medium">{SEVERITY_LABEL[f.severity] ?? f.severity}</td>
+                  <td className="py-0.5 pr-2 text-slate-500">
+                    {f.count}건 × {f.weight}
+                  </td>
+                  <td className="py-0.5 text-right tabular-nums">{f.points}</td>
+                </tr>
+              ))}
+              <tr className="border-t border-slate-200 font-semibold text-slate-800">
+                <td className="py-1" colSpan={2}>
+                  합계
+                </td>
+                <td className="py-1 text-right tabular-nums">
+                  {rawSum > 100 ? `${rawSum} → 100%` : `${rawSum}%`}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        ) : (
+          <p className="mt-2 text-slate-500">감점 대상 Risk가 없습니다.</p>
+        )}
+        <p className="mt-2 text-slate-400">가중치: BLOCKER 20 · HIGH 8 · MEDIUM 3 · LOW 1</p>
+      </div>
     </div>
   );
 }

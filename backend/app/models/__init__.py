@@ -18,7 +18,7 @@ from app.models.report import (
     AnalysisStage,
     UpgradeReport,
 )
-from app.models.risk import ReadinessScore, RiskFinding, RiskSeverity
+from app.models.risk import ComplexityFactor, ReadinessScore, RiskFinding, RiskSeverity
 from app.models.upgrade import (
     CheckItem,
     DeprecatedAPIFinding,
@@ -50,6 +50,7 @@ __all__ = [
     "AnalysisRequest",
     "AnalysisStage",
     "UpgradeReport",
+    "ComplexityFactor",
     "ReadinessScore",
     "RiskFinding",
     "RiskSeverity",

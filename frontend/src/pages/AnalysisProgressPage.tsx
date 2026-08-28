@@ -11,7 +11,7 @@ const STAGE_ORDER: { key: string; label: string }[] = [
   { key: "RAG_SEARCH", label: "Release Note / Compatibility RAG 검색" },
   { key: "COMPATIBILITY_CHECK", label: "Compatibility 분석" },
   { key: "DEPRECATED_API_CHECK", label: "Deprecated / Removed API 검사" },
-  { key: "RISK_ANALYSIS", label: "Risk 분석 및 Readiness Score 계산" },
+  { key: "RISK_ANALYSIS", label: "Risk 분석 및 준비 복잡도 계산" },
   { key: "UPGRADE_PATH_GENERATION", label: "Upgrade Path 생성" },
   { key: "UPGRADE_PLAN_GENERATION", label: "Version별 Upgrade Scenario 생성" },
   { key: "COMPLETED", label: "완료" },

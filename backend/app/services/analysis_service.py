@@ -144,7 +144,7 @@ def _build_executive_summary(
 
     top_risks = sorted(risks, key=lambda r: list(RiskSeverity).index(r.severity))[:5]
     context_lines = [
-        f"Upgrade Readiness Score: {readiness.score}/100",
+        f"업그레이드 준비 복잡도: {readiness.complexity}% (0=단순, 100=매우 복잡)",
         f"BLOCKER {readiness.blocker_count}건, HIGH {readiness.high_count}건, "
         f"MEDIUM {readiness.medium_count}건, LOW {readiness.low_count}건",
         f"Upgrade Path: {' -> '.join(upgrade_plan.upgrade_path)}",
