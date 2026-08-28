@@ -1,0 +1,52 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "kube-root-ca.crt",
+        "namespace": "kube-system"
+      },
+      "data": {
+        "ca.crt": "-----BEGIN CERTIFICATE-----\nMIIDCzCCAfOgAwIBAgIUMTaAXEvm7nIgjSA8DPYc2VG3hSwwDQYJKoZIhvcNAQEL\nBQAwFTETMBEGA1UEAwwKa3ViZXJuZXRlczAeFw0yNjA4MjcyMzA1MDVaFw0zNjA4\nMjQyMzA1MDVaMBUxEzARBgNVBAMMCmt1YmVybmV0ZXMwggEiMA0GCSqGSIb3DQEB\nAQUAA4IBDwAwggEKAoIBAQC8G5fCfkc3ymgZwhSqdDXFDzhdMfg5hT7IPYrvl5Q4\nS2fXaJh4JIgoCui5smdnSFrLRHSUIudmmJ8FLVZHlV/krUHUe/gRxW6bn7fWAPEP\nNQr0urn92xZ1JaH4np+ItIbbZuMR2ce+BXG/QI9Sc2N2JThKOW8cUkW7fEj5hFq6\nIfHtUmbtijPZpZLkWsFXZEERExKpD3Sym9Vu+gCv1Rc76hCrXu13y7cHidY2afTX\n5BSRQQhDzvclga4RxeP8c/Mg+Tatt/BQl6RbCxX0j0XJeywDa9tSVaKJWo+w0++Q\nQsFjgKiYzMTmayYOszlwoDBAoe6qyQ+1ls79wSjWc4NjAgMBAAGjUzBRMB0GA1Ud\nDgQWBBThlNJlTX2nQH7sP0Ap6YNdcLmFxjAfBgNVHSMEGDAWgBThlNJlTX2nQH7s\nP0Ap6YNdcLmFxjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQCg\nbbRaFs0vWSUCjGh4aHUBGQ6TG0++75DureNGQE5sP3r/xeAGRMfdc13nkqV/CMGD\nS4rusbG2kHbwU4HAGsbFroA67gejY4APx9eX1vubw2MVVh6T6NYwwlLCBFSoGkpg\nWOUKX8gPbzWX4wkwZsFMgOTiR1VKtXnayK1aJlxniEirpa3AHrgUXR/2VX+U9Zlf\nmtsqQIyq3XGDDSWUA6ny4M6EvUu4GFQYknSmDfF7zjMx9pF4Zp8UhJeOpwwfEYkJ\nXN1ka3KGpVoRV+jqX//883xywl2TKMDx3flvV/s91/eLN5T0JgQzn24TrLl3oj82\nKEqNH+y4u1oh/8oS2AVo\n-----END CERTIFICATE-----\n"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "extension-apiserver-authentication",
+        "namespace": "kube-system"
+      },
+      "data": {
+        "client-ca-file": "-----BEGIN CERTIFICATE-----\nMIIDCzCCAfOgAwIBAgIUMTaAXEvm7nIgjSA8DPYc2VG3hSwwDQYJKoZIhvcNAQEL\nBQAwFTETMBEGA1UEAwwKa3ViZXJuZXRlczAeFw0yNjA4MjcyMzA1MDVaFw0zNjA4\nMjQyMzA1MDVaMBUxEzARBgNVBAMMCmt1YmVybmV0ZXMwggEiMA0GCSqGSIb3DQEB\nAQUAA4IBDwAwggEKAoIBAQC8G5fCfkc3ymgZwhSqdDXFDzhdMfg5hT7IPYrvl5Q4\nS2fXaJh4JIgoCui5smdnSFrLRHSUIudmmJ8FLVZHlV/krUHUe/gRxW6bn7fWAPEP\nNQr0urn92xZ1JaH4np+ItIbbZuMR2ce+BXG/QI9Sc2N2JThKOW8cUkW7fEj5hFq6\nIfHtUmbtijPZpZLkWsFXZEERExKpD3Sym9Vu+gCv1Rc76hCrXu13y7cHidY2afTX\n5BSRQQhDzvclga4RxeP8c/Mg+Tatt/BQl6RbCxX0j0XJeywDa9tSVaKJWo+w0++Q\nQsFjgKiYzMTmayYOszlwoDBAoe6qyQ+1ls79wSjWc4NjAgMBAAGjUzBRMB0GA1Ud\nDgQWBBThlNJlTX2nQH7sP0Ap6YNdcLmFxjAfBgNVHSMEGDAWgBThlNJlTX2nQH7s\nP0Ap6YNdcLmFxjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQCg\nbbRaFs0vWSUCjGh4aHUBGQ6TG0++75DureNGQE5sP3r/xeAGRMfdc13nkqV/CMGD\nS4rusbG2kHbwU4HAGsbFroA67gejY4APx9eX1vubw2MVVh6T6NYwwlLCBFSoGkpg\nWOUKX8gPbzWX4wkwZsFMgOTiR1VKtXnayK1aJlxniEirpa3AHrgUXR/2VX+U9Zlf\nmtsqQIyq3XGDDSWUA6ny4M6EvUu4GFQYknSmDfF7zjMx9pF4Zp8UhJeOpwwfEYkJ\nXN1ka3KGpVoRV+jqX//883xywl2TKMDx3flvV/s91/eLN5T0JgQzn24TrLl3oj82\nKEqNH+y4u1oh/8oS2AVo\n-----END CERTIFICATE-----\n",
+        "requestheader-client-ca-file": "-----BEGIN CERTIFICATE-----\nMIIDEzCCAfugAwIBAgIUcXD3NuCqA9GKreOTTGPrp+aA9XgwDQYJKoZIhvcNAQEL\nBQAwGTEXMBUGA1UEAwwOZnJvbnQtcHJveHktY2EwHhcNMjYwODI3MjMwNTA2WhcN\nMzYwODI0MjMwNTA2WjAZMRcwFQYDVQQDDA5mcm9udC1wcm94eS1jYTCCASIwDQYJ\nKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMGVA1QY+LSLQlDCa1GybjkGQ6t3ycXl\nFsZUQbxL8U9ZUxkzdL82YbqCvtX6Vo1iowPJuha9Av42aErQ+Lvq1HYtCk/ezPd0\ndxFyZbsvaIWRV98lKE0v7J1t/6zTe087QafuCIJ5/hkV91WMCyNNldu4TCZ9v2/J\ntIh1khhn++o2pNiITAk+TWzkBOSLk9e9C1uErRPUl7SpP4fQWraQU89htePiFMZq\nsvzz4jxT6SyTAxu3gE4zipbQPl2lOuK1pN8xIyXrZknSv/bYNgNA2Yi3eC+erVjc\n+0S/u+qi5fIPz55/2cbFx9uAcV8OcvMKTiLcztTwFSgvTrK6hfktj+kCAwEAAaNT\nMFEwHQYDVR0OBBYEFE2+OyuLZNJwcW2ZFnuJoKdzsdvZMB8GA1UdIwQYMBaAFE2+\nOyuLZNJwcW2ZFnuJoKdzsdvZMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEL\nBQADggEBAKFk5HZvmZ7yMeVmQ49vWPnHK1ExhE8r4aMgmFpjlk/hAw4Ixmu86pq8\nUVBtuOsITlJN2FMuefy4FcS7LNhutvJdGog4Ztb4i8OdTSPaAgS17TdCNny5RuHj\nBD1ZfSiegaddIWNVcL+hIH9TgxOHjrH65bKsW/CbHVMavmNOII1RKlhEhZrQTPEk\nwMRgqJpnbf9+7Gt1Oq6AZcrJb6BciGmPekH7YFbD+NjcqVU/z9v2v1XPQvlGbH0m\njTGjlzFdgSSFwASOPPjSYOXTn0qTeOaRsv7MsaI74DnquOOnsp33+jfrjJ+s+o4k\n5yiGDfDBBJzPfp0yQ9l2np3By1XvOTk=\n-----END CERTIFICATE-----\n",
+        "requestheader-allowed-names": "[\"front-proxy-client\"]"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "kubeadm-config",
+        "namespace": "kube-system"
+      },
+      "data": {
+        "ClusterConfiguration": "apiServer:\n  extraArgs:\n    authorization-mode: Node,RBAC\napiVersion: kubeadm.k8s.io/v1beta4\ncaCertificateValidityPeriod: 175200h0m0s\ncertificateValidityPeriod: 87600h0m0s\ncertificatesDir: /etc/kubernetes/pki\nclusterName: kubernetes\ncontrolPlaneEndpoint: 10.0.0.10:6443\ndns: {}\netcd:\n  local:\n    dataDir: /var/lib/etcd\nimageRepository: registry.k8s.io\nkind: ClusterConfiguration\nkubernetesVersion: v1.32.13\nnetworking:\n  dnsDomain: cluster.local\n  serviceSubnet: 10.96.0.0/12\n"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "kube-proxy",
+        "namespace": "kube-system"
+      },
+      "data": {
+        "config.conf": "apiVersion: kubeproxy.config.k8s.io/v1alpha1\nkind: KubeProxyConfiguration\nmode: iptables\n"
+      }
+    }
+  ]
+}

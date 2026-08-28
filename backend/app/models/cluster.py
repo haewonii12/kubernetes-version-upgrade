@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -82,6 +83,23 @@ class CRDInfo(BaseModel):
     inferred_owner: str | None = None
 
 
+class CertExpiry(BaseModel):
+    """``kubeadm certs check-expiration`` 이 출력하는 인증서 한 줄에 대응.
+
+    kubeadm이 관리하는 대부분의 인증서(``apiserver``, ``*.conf`` 등)는 Control Plane
+    노드의 ``/etc/kubernetes`` 에만 있어 Read-Only 권한으로는 만료일을 알 수 없다
+    (``observable=False``). API로 노출되는 CA 인증서(``ca``, ``front-proxy-ca``)만
+    ``observable=True`` 로 실제 만료일을 채운다.
+    """
+
+    name: str
+    expires: datetime | None = None
+    residual_days: int | None = None
+    is_certificate_authority: bool = False
+    observable: bool = False
+    source: str | None = None
+
+
 class ClusterInfo(BaseModel):
     kubernetes_version: str
     control_plane: ControlPlaneInfo
@@ -97,3 +115,4 @@ class ClusterInfo(BaseModel):
     crds: list[CRDInfo] = Field(default_factory=list)
     feature_gates: dict[str, bool] = Field(default_factory=dict)
     helm_detected: bool = False
+    certificate_expirations: list[CertExpiry] = Field(default_factory=list)

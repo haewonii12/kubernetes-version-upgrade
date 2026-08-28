@@ -120,7 +120,7 @@ def build_upgrade_plan(
                 pre_checks=_build_pre_checks(to_minor, custom_components),
                 control_plane_steps=_build_control_plane_steps(cp_nodes, to_minor),
                 worker_steps=_build_worker_steps(worker_nodes, to_minor),
-                post_checks=_build_post_checks(custom_components),
+                post_checks=_build_post_checks(custom_components, is_final=(i == len(upgrade_path) - 1)),
                 risks=phase_risks,
                 sources=release_refs,
             )
@@ -220,7 +220,7 @@ def _build_worker_steps(worker_nodes: list[str], to_minor: str) -> list[NodeUpgr
     return steps
 
 
-def _build_post_checks(custom_components: list[str]) -> list[CheckItem]:
+def _build_post_checks(custom_components: list[str], is_final: bool = False) -> list[CheckItem]:
     items = [
         CheckItem(description="kube-apiserver/controller-manager/scheduler/etcd Pod 상태 확인", command="kubectl -n kube-system get pods"),
         CheckItem(description="CoreDNS 상태 확인", command="kubectl -n kube-system get pods -l k8s-app=kube-dns"),
@@ -234,4 +234,42 @@ def _build_post_checks(custom_components: list[str]) -> list[CheckItem]:
                 command=f"cat /etc/kubernetes/manifests/{component}.yaml",
             )
         )
+    if is_final:
+        items.extend(_build_certificate_final_checks())
     return items
+
+
+def _build_certificate_final_checks() -> list[CheckItem]:
+    """최종 목표 버전 업그레이드 완료 직후에만 넣는 인증서 재연장 안내.
+
+    ``kubeadm upgrade apply`` / ``kubeadm upgrade node`` 는 관리 대상 leaf 인증서를
+    기본 유효기간 1년으로 자동 재발급한다(``--certificate-renewal=true`` 가 기본).
+    스크립트로 인증서를 1년 → 10년으로 늘려 쓰던 클러스터라면, 모든 업그레이드가
+    끝난 뒤 그 연장 작업을 다시 해줘야 원래 상태로 돌아온다.
+    """
+    return [
+        CheckItem(
+            description=(
+                "각 Control Plane 노드에서 인증서 유효기간 재확인 — 업그레이드로 1년짜리로 "
+                "재발급됐는지 확인"
+            ),
+            command="kubeadm certs check-expiration",
+        ),
+        CheckItem(
+            description=(
+                "⚠️ 인증서 유효기간 재연장 (1년 → 10년): kubeadm upgrade 는 leaf 인증서"
+                "(apiserver, apiserver-kubelet-client, apiserver-etcd-client, etcd-server, "
+                "etcd-peer, etcd-healthcheck-client, front-proxy-client, 그리고 "
+                "admin.conf / controller-manager.conf / scheduler.conf 내 client 인증서)를 "
+                "기본 유효기간 1년으로 재발급합니다. 인증서 유효기간을 10년으로 늘려 쓰던 "
+                "클러스터라면, 최종 업그레이드 완료 후 인증서 재발급(연장) 스크립트를 다시 "
+                "실행해 1년 → 10년으로 되돌리세요. CA 인증서(ca / etcd-ca / front-proxy-ca)는 "
+                "kubeadm upgrade 가 건드리지 않지만, 연장 스크립트가 CA까지 재생성했다면 "
+                "함께 확인하세요."
+            ),
+        ),
+        CheckItem(
+            description="인증서 재연장 후 모든 Control Plane Pod가 새 인증서로 정상 기동했는지 재확인",
+            command="kubectl -n kube-system get pods -o wide",
+        ),
+    ]

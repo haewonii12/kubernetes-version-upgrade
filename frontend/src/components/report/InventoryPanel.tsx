@@ -71,6 +71,49 @@ export default function InventoryPanel({ cluster }: { cluster: ClusterInfo }) {
         </ul>
       </div>
 
+      {cluster.certificate_expirations && cluster.certificate_expirations.length > 0 && (
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h3 className="text-sm font-semibold text-slate-500">
+            인증서 만료 (<code>kubeadm certs check-expiration</code>)
+          </h3>
+          <p className="mt-1 text-xs text-slate-400">
+            CA 인증서(<code>ca</code>, <code>front-proxy-ca</code>)는 API의 ConfigMap에서 직접 확인한 값입니다.
+            나머지 인증서는 Read-Only 권한으로 만료일을 읽을 수 없어, 각 Control Plane 노드에서{" "}
+            <code>kubeadm certs check-expiration</code>을 직접 실행해 확인해야 합니다.
+          </p>
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full min-w-[560px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 text-xs uppercase text-slate-400">
+                  <th className="py-2 pr-4">CERTIFICATE</th>
+                  <th className="py-2 pr-4">EXPIRES</th>
+                  <th className="py-2 pr-4">RESIDUAL TIME</th>
+                  <th className="py-2 pr-4">CA</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cluster.certificate_expirations.map((c) => (
+                  <tr key={c.name} className="border-b border-slate-100">
+                    <td className="py-2 pr-4 font-medium text-slate-800">{c.name}</td>
+                    <td className="py-2 pr-4">
+                      {c.observable && c.expires ? (
+                        new Date(c.expires).toISOString().slice(0, 10)
+                      ) : (
+                        <span className="text-slate-400">노드에서 확인 필요</span>
+                      )}
+                    </td>
+                    <td className="py-2 pr-4">
+                      {c.observable && c.residual_days != null ? `약 ${c.residual_days}일` : "-"}
+                    </td>
+                    <td className="py-2 pr-4">{c.is_certificate_authority ? "예" : "아니오"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {cluster.crds.length > 0 && (
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="text-sm font-semibold text-slate-500">CRD ({cluster.crds.length}개)</h3>

@@ -22,6 +22,7 @@ from app.agents.deprecated_api import evaluate_deprecated_apis, summarize_deprec
 from app.agents.planner import build_upgrade_plan, compute_upgrade_path
 from app.agents.risk import build_risk_findings
 from app.collectors.addon import collect_software_inventory
+from app.collectors.certificate import collect_certificate_expirations
 from app.collectors.custom_config import CustomConfigCollector
 from app.collectors.etcd import EtcdCollector
 from app.collectors.kubernetes import KubernetesCollector
@@ -85,6 +86,7 @@ def build_graph(client: MCPClient, rag: RAGRetriever, llm_client: LLMClient | No
         ingress_controller = kubernetes_collector.collect_ingress_controller()
         crds = kubernetes_collector.collect_crds()
         helm_detected = kubernetes_collector.collect_helm_detected()
+        certificate_expirations = collect_certificate_expirations(client)
 
         cluster = ClusterInfo(
             kubernetes_version=version,
@@ -98,6 +100,7 @@ def build_graph(client: MCPClient, rag: RAGRetriever, llm_client: LLMClient | No
             ingress_controller=ingress_controller,
             crds=crds,
             helm_detected=helm_detected,
+            certificate_expirations=certificate_expirations,
         )
         return {"cluster": cluster, "current_version": version}
 

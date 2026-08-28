@@ -86,6 +86,9 @@ class MCPClient(abc.ABC):
     def get_pods(self, namespace: str | None = None) -> list[dict[str, Any]]: ...
 
     @abc.abstractmethod
+    def get_configmaps(self, namespace: str | None = None) -> list[dict[str, Any]]: ...
+
+    @abc.abstractmethod
     def get_deployments(self, namespace: str | None = None) -> list[dict[str, Any]]: ...
 
     @abc.abstractmethod
@@ -245,6 +248,9 @@ class RealMCPClient(MCPClient):
     def get_pods(self, namespace: str | None = None) -> list[dict[str, Any]]:
         return self._get_all_ns("pods", namespace)
 
+    def get_configmaps(self, namespace: str | None = None) -> list[dict[str, Any]]:
+        return self._get_all_ns("configmaps", namespace)
+
     def get_deployments(self, namespace: str | None = None) -> list[dict[str, Any]]:
         return self._get_all_ns("deployments", namespace)
 
@@ -316,6 +322,13 @@ class MockMCPClient(MCPClient):
         items = self._load("pods").get("items", [])
         if namespace:
             return [p for p in items if p["metadata"]["namespace"] == namespace]
+        return items
+
+    def get_configmaps(self, namespace: str | None = None) -> list[dict[str, Any]]:
+        data = self._load("configmaps")
+        items = data.get("items", []) if isinstance(data, dict) else []
+        if namespace:
+            return [c for c in items if c["metadata"]["namespace"] == namespace]
         return items
 
     def get_deployments(self, namespace: str | None = None) -> list[dict[str, Any]]:

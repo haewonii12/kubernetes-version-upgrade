@@ -60,6 +60,15 @@ export interface CRDInfo {
   inferred_owner: string | null;
 }
 
+export interface CertExpiry {
+  name: string;
+  expires: string | null;
+  residual_days: number | null;
+  is_certificate_authority: boolean;
+  observable: boolean;
+  source: string | null;
+}
+
 export interface ClusterInfo {
   kubernetes_version: string;
   control_plane: ControlPlaneInfo;
@@ -75,6 +84,7 @@ export interface ClusterInfo {
   crds: CRDInfo[];
   feature_gates: Record<string, boolean>;
   helm_detected: boolean;
+  certificate_expirations?: CertExpiry[];
 }
 
 export interface RAGReference {
