@@ -1,0 +1,11 @@
+# frontend/dist 가 이미 빌드돼 있다고 가정하는 얇은 이미지 (RUN 없음).
+# docker/frontend/Dockerfile 은 컨테이너 안에서 node 로 빌드하지만, arm64 호스트에서
+# --platform linux/amd64 로 그 경로를 타면 qemu 로 emulated node 를 돌려야 해서
+# npm 이 자주 SIGSEGV 난다. 정적 산출물(dist/)은 아키텍처 무관이므로 호스트에서
+# 네이티브로 빌드하고 여기서 nginx 에 얹기만 한다 (docker/export-images-podman.sh 참고).
+#
+# Build context 는 frontend/ (dist/, ../docker/frontend/nginx.conf 를 스크립트가 준비).
+FROM nginx:1.27-alpine
+COPY dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80

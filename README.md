@@ -76,18 +76,22 @@ kubectl-ai 와 pluto(Deprecated API 교차검증) 바이너리도 빌드 시점�
 
 ```bash
 git clone <repo> && cd k8s-upgrade-assistant
-docker/export-images.sh   # docker compose build + docker save → k8s-upgrade-images.tar
+docker/export-images.sh          # docker: compose build + save → k8s-upgrade-images.tar
+# 또는 podman:
+docker/export-images-podman.sh   # podman build(--platform linux/amd64) + save → k8s-upgrade-images.tar.gz
+#   빌드 머신이 arm64면 qemu 에뮬레이션으로 amd64 cross-build (qemu-user-static/binfmt 필요)
+#   대상이 arm64면:  docker/export-images-podman.sh --arch arm64
 ```
 
-**2. 저장소 전체(특히 `k8s-upgrade-images.tar`, `docker-compose.yml`, `rag/documents/`)를 폐쇄망으로 반입**
+**2. 저장소 전체(특히 `k8s-upgrade-images.tar[.gz]`, `docker-compose.yml`, `rag/documents/`)를 폐쇄망으로 반입**
 
 승인된 방법(내부망 파일 서버, 반입 매체 등)으로 옮깁니다.
 
 **3. 폐쇄망 안에서:**
 
 ```bash
-docker/load-images.sh     # docker load로 이미지 반입
-docker compose up -d      # 바로 기동 (이미지가 이미 있으므로 --build 불필요)
+docker/load-images.sh     # docker/podman 자동 감지, .tar/.tar.gz 자동 처리
+docker compose up -d      # 또는 podman compose up -d  (이미지가 이미 있으므로 --build 불필요)
 ```
 
 이후 RAG 문서(`rag/documents/`)를 갱신할 때도 같은 방식입니다 — 문서만 폐쇄망 안에서 직접
