@@ -54,9 +54,16 @@ spec:
             - { name: var, mountPath: /app/backend/var }
             # kubeconfig 업로드 임시 저장 (분석 종료 즉시 삭제됨)
             - { name: tmp, mountPath: /tmp }
+            - name: kubectl-bin
+              mountPath: /usr/local/bin/kubectl
+              readOnly: true
       volumes:
         - { name: var, emptyDir: {} }
         - { name: tmp, emptyDir: {} }
+        - name: kubectl-bin
+          hostPath: 
+            path: /usr/bin/kubectl
+            type: File 
 ---
 apiVersion: v1
 kind: Service
