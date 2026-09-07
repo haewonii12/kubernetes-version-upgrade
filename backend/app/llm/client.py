@@ -50,11 +50,13 @@ class LLMClient:
     def is_configured(self) -> bool:
         return bool(self._url and self._model)
 
-    def summarize(self, question: str, context: str) -> str | None:
-        """주어진 근거(context)를 바탕으로 question에 답하는 텍스트를 생성한다.
+    def complete(self, messages: list[dict[str, str]], *, temperature: float = 0.2) -> str | None:
+        """임의의 multi-message 대화로 chat completion을 호출하는 저수준 메서드.
 
-        실패(연결 불가, timeout, 잘못된 응답 등) 시 예외를 던지지 않고 ``None``을
-        반환한다 — 호출부가 항상 안전하게 fallback할 수 있도록 하기 위함이다.
+        ``summarize()`` 를 포함한 모든 LLM 호출은 이 메서드를 거친다 (DRY) — agi 브랜치의
+        GoalManager/Planner/Critic처럼 단일 Q+context를 넘어서는 구조화된 프롬프트가
+        필요한 호출부를 위해 추가했다. 계약은 ``summarize()`` 와 동일: 실패 시 예외를
+        던지지 않고 ``None`` 을 반환한다.
         """
         if not self.is_configured:
             return None
@@ -63,12 +65,9 @@ class LLMClient:
                 self._url,
                 json={
                     "model": self._model,
-                    "messages": [
-                        {"role": "system", "content": SUMMARY_SYSTEM_PROMPT},
-                        {"role": "user", "content": f"[컨텍스트]\n{context}\n\n[요청]\n{question}"},
-                    ],
+                    "messages": messages,
                     "stream": False,
-                    "temperature": 0.2,
+                    "temperature": temperature,
                 },
                 timeout=self._timeout,
             )
@@ -77,5 +76,18 @@ class LLMClient:
             content = data["choices"][0]["message"]["content"]
             return content.strip() or None
         except Exception:  # noqa: BLE001
-            logger.warning("LLM 요약 생성 실패 (endpoint=%s, model=%s) — fallback 사용", self._url, self._model, exc_info=True)
+            logger.warning("LLM 호출 실패 (endpoint=%s, model=%s) — fallback 사용", self._url, self._model, exc_info=True)
             return None
+
+    def summarize(self, question: str, context: str) -> str | None:
+        """주어진 근거(context)를 바탕으로 question에 답하는 텍스트를 생성한다.
+
+        실패(연결 불가, timeout, 잘못된 응답 등) 시 예외를 던지지 않고 ``None``을
+        반환한다 — 호출부가 항상 안전하게 fallback할 수 있도록 하기 위함이다.
+        """
+        return self.complete(
+            [
+                {"role": "system", "content": SUMMARY_SYSTEM_PROMPT},
+                {"role": "user", "content": f"[컨텍스트]\n{context}\n\n[요청]\n{question}"},
+            ]
+        )

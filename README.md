@@ -38,6 +38,12 @@ detect_installed_software → search_rag → check_compatibility →
 check_deprecated_api → analyze_risk → generate_upgrade_path →
 generate_upgrade_plan` 순서입니다 (`backend/app/agents/upgrade_agent.py`).
 
+이 저장소의 `agi` 브랜치에는 고정 워크플로우 대신 목표 기반 자율 루프
+(GoalManager→Planner→Executor→Observer→Critic)로 동작하는 실험적
+서브시스템이 추가되어 있습니다. 인터넷 연결이 가능한 환경을 전제로 하며,
+기존 폐쇄망 워크플로우(`/api/v1/analysis*`)는 변경 없이 그대로 유지됩니다.
+자세한 내용은 [`docs/agi-architecture.md`](docs/agi-architecture.md) 참고.
+
 ## Directory Structure
 
 ```text
