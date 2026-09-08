@@ -46,6 +46,12 @@ class Settings(BaseSettings):
     # 설정한다. OpenRouter처럼 인증이 필요한 서버를 쓸 때 여기에 넣는다
     # (endpoint=https://openrouter.ai/api/v1, model=예: openai/gpt-4o-mini).
     llm_api_key: str | None = None
+    # UI에서 LLM Endpoint/Model을 비워두고 제출하면 이 기본값을 쓴다 — 매 요청마다
+    # 똑같은 값을 타이핑해야 하는 번거로움 때문에 실수로 LLM 없이 제출되는 경우가
+    # 많아서 추가했다 (그러면 agi 에이전트의 LLM 재검증 단계가 조용히 통째로
+    # 꺼진다). 여전히 요청에서 직접 입력하면 그 값이 우선한다.
+    llm_default_endpoint: str | None = None
+    llm_default_model: str | None = None
 
     # --- Autonomous Agent (agi 브랜치, Section 6/8/10) ---
     # Open Network 사용 여부 스위치. False면 WebSearch/공식문서/GitHub Tool이 모두
