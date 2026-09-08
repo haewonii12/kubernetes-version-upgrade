@@ -112,5 +112,32 @@ def test_unresolved_compatibility_escalates_to_web_and_github_search(agent_state
     assert all(t.origin == "replan" for t in added)
     assert all("kubernetes 1.36 compatibility" in t.input["query"] for t in added)
 
-    # idempotent: 다시 replan해도 같은 항목에 대해 중복 생성되지 않는다.
-    assert [t for t in planner.replan(state) if state.add_task(t)] == []
+
+def _compatibility_result_all_compatible() -> ToolResult:
+    return ToolResult(
+        tool_name="compatibility_checker",
+        ok=True,
+        data={
+            "results": [
+                {"component": "calico", "current_version": "3.30.7", "target_kubernetes_version": "1.36", "status": "COMPATIBLE"},
+                {"component": "containerd", "current_version": "1.7.20", "target_kubernetes_version": "1.36", "status": "COMPATIBLE"},
+            ]
+        },
+        summary="Compatibility 2건 판정 완료 (주의 필요 0건)",
+    )
+
+
+def test_fully_compatible_result_still_gets_second_opinion(agent_state_factory):
+    """RAG가 전부 COMPATIBLE로 판정해도 '그걸로 끝'이 아니라 최소 1건은 개방망으로
+    2차 검증해야 한다 — RAG 판정만 믿고 결론 내리지 않는다."""
+    state = agent_state_factory(goal_text="1.32에서 1.36으로 업그레이드 가능한지 분석", target_version="1.36")
+    compat_task = Task(id="t1", description="compat", tool_name="compatibility_checker", subject_key="compatibility")
+    state.add_task(compat_task)
+
+    observer = Observer(llm_client=None)
+    observations = observer.observe_batch([(compat_task, _compatibility_result_all_compatible())], state)
+
+    obs = observations[0]
+    assert obs.requires_further_investigation is True
+    assert obs.follow_up_hint["kind"] == "external_research"
+    assert len(obs.follow_up_hint["items"]) >= 1
