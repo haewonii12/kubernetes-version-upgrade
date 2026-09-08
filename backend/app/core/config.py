@@ -11,7 +11,11 @@ PROJECT_ROOT = BACKEND_ROOT.parent
 class Settings(BaseSettings):
     """런타임 설정. 모두 환경변수로 override 가능 (.env.example 참고)."""
 
-    model_config = SettingsConfigDict(env_prefix="UPGRADE_AGENT_", env_file=".env", extra="ignore")
+    # env_file은 절대경로로 고정한다 — 상대경로(".env")였다면 프로세스를 어느
+    # 디렉터리에서 실행했는지에 따라 조용히 못 찾고 전부 기본값으로 fallback되는
+    # 사고가 날 수 있다 (실제로 겪음: backend/가 아닌 곳에서 기동했더니 에러 없이
+    # OpenRouter/OpenNetwork 설정이 통째로 무시됨).
+    model_config = SettingsConfigDict(env_prefix="UPGRADE_AGENT_", env_file=str(BACKEND_ROOT / ".env"), extra="ignore")
 
     # 실제 클러스터 분석(mock_mode=false) 시 kubectl-ai MCP 서버를 하위 프로세스로
     # 기동하는 명령. mock/real 여부 자체는 분석 요청마다 mock_mode 파라미터로 결정된다.
