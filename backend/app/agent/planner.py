@@ -56,9 +56,7 @@ class Planner:
         for obs in state.observations:
             if not obs.requires_further_investigation:
                 continue
-            task = self._task_from_observation(obs, state)
-            if task is not None:
-                new_tasks.append(task)
+            new_tasks.extend(self._tasks_from_observation(obs, state))
         return new_tasks
 
     def _infer_task_categories(self, goal: Goal) -> list[str]:
@@ -103,21 +101,29 @@ class Planner:
             created_at_iteration=state.iteration,
         )
 
-    def _task_from_observation(self, obs: Observation, state: AgentState) -> Task | None:
+    def _tasks_from_observation(self, obs: Observation, state: AgentState) -> list[Task]:
         hint = obs.follow_up_hint
         if not hint:
-            return None
+            return []
 
-        if hint.get("kind") == "compatibility":
-            component = hint["component"]
-            version = hint.get("version")
-            key = f"compatibility:{component}:{version}"
-            if any(t.subject_key == key for t in state.plan):
-                return None
-            task_input: dict = {"component": component, "component_version": version}
-            if state.goal and state.goal.target_version:
-                task_input["target_version"] = state.goal.target_version
-            return Task(
+        kind = hint.get("kind")
+        if kind == "compatibility":
+            return self._tasks_for_new_component(hint, state)
+        if kind == "external_research":
+            return self._tasks_for_external_research(hint, state)
+        return []
+
+    def _tasks_for_new_component(self, hint: dict, state: AgentState) -> list[Task]:
+        component = hint["component"]
+        version = hint.get("version")
+        key = f"compatibility:{component}:{version}"
+        if any(t.subject_key == key for t in state.plan):
+            return []
+        task_input: dict = {"component": component, "component_version": version}
+        if state.goal and state.goal.target_version:
+            task_input["target_version"] = state.goal.target_version
+        return [
+            Task(
                 id=_new_id(),
                 description=f"{component} {version or ''} 목표 버전 호환성 재확인".strip(),
                 capability_hint=ToolCapability.COMPATIBILITY,
@@ -127,4 +133,48 @@ class Planner:
                 subject_key=key,
                 created_at_iteration=state.iteration,
             )
-        return None
+        ]
+
+    def _tasks_for_external_research(self, hint: dict, state: AgentState) -> list[Task]:
+        """RAG(내부 지식)로 못 푼 항목을 Web Search/GitHub로 넘긴다 (Section 6).
+
+        Observer가 이미 항목 수를 제한해서 넘기므로(``_MAX_EXTERNAL_RESEARCH_ITEMS``)
+        여기서는 항목마다 web_search + github_search Task 두 개를 만들기만 한다 —
+        각 Tool은 API 키/설정이 없으면 스스로 not_configured로 안전하게 끝난다.
+        """
+        reason = hint.get("reason")
+        tasks: list[Task] = []
+        for item in hint.get("items", []):
+            if reason == "compatibility":
+                subject = f"{item['component']}:{item.get('target_version')}"
+                query = (
+                    f"{item['component']} {item.get('current_version') or ''} kubernetes "
+                    f"{item.get('target_version')} compatibility".strip()
+                )
+                description = f"{item['component']} Kubernetes {item.get('target_version')} 호환성 웹 조사"
+            elif reason == "deprecated_api":
+                subject = f"{item['kind']}/{item['api_version']}:{item.get('target_version')}"
+                query = f"{item['kind']} {item['api_version']} kubernetes {item.get('target_version')} deprecated removed"
+                description = f"{item['kind']}/{item['api_version']} deprecation 관련 웹 조사"
+            else:
+                continue
+
+            for tool_name in ("web_search", "github_search"):
+                key = f"external_research:{tool_name}:{subject}"
+                if any(t.subject_key == key for t in state.plan):
+                    continue
+                tasks.append(
+                    Task(
+                        id=_new_id(),
+                        description=description,
+                        capability_hint=(
+                            ToolCapability.WEB_SEARCH if tool_name == "web_search" else ToolCapability.SOURCE_CODE
+                        ),
+                        tool_name=tool_name,
+                        input={"query": query},
+                        origin="replan",
+                        subject_key=key,
+                        created_at_iteration=state.iteration,
+                    )
+                )
+        return tasks

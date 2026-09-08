@@ -71,3 +71,46 @@ def test_planner_replan_adds_new_task_not_in_initial_plan(tool_retriever, agent_
     more_tasks = planner.replan(state)
     added_again = [t for t in more_tasks if state.add_task(t)]
     assert added_again == []
+
+
+def _compatibility_result_with_unresolved_items() -> ToolResult:
+    return ToolResult(
+        tool_name="compatibility_checker",
+        ok=True,
+        data={
+            "results": [
+                {"component": "kube-proxy", "current_version": "1.32.13", "target_kubernetes_version": "1.36", "status": "UNKNOWN"},
+                {"component": "rhel", "current_version": "8.10", "target_kubernetes_version": "1.36", "status": "WARNING"},
+            ]
+        },
+        summary="Compatibility 2건 판정 완료 (주의 필요 2건)",
+    )
+
+
+def test_unresolved_compatibility_escalates_to_web_and_github_search(agent_state_factory, tool_retriever):
+    """RAG로 못 푼 Compatibility 항목은 web_search/github_search Task로 이어져야 한다
+    (RAG 근거가 없다고 그냥 UNKNOWN으로 끝내면 안 된다 — Section 6 정보 탐색 우선순위)."""
+    state = agent_state_factory(goal_text="1.32에서 1.36으로 업그레이드 가능한지 분석", target_version="1.36")
+    compat_task = Task(id="t1", description="compat", tool_name="compatibility_checker", subject_key="compatibility")
+    state.add_task(compat_task)
+
+    observer = Observer(llm_client=None)
+    observations = observer.observe_batch([(compat_task, _compatibility_result_with_unresolved_items())], state)
+
+    obs = observations[0]
+    assert obs.requires_further_investigation is True
+    assert obs.follow_up_hint["kind"] == "external_research"
+    assert obs.follow_up_hint["reason"] == "compatibility"
+    assert {item["component"] for item in obs.follow_up_hint["items"]} == {"kube-proxy", "rhel"}
+
+    planner = Planner(tool_retriever, llm_client=None)
+    new_tasks = planner.replan(state)
+    added = [t for t in new_tasks if state.add_task(t)]
+
+    tool_names = sorted(t.tool_name for t in added)
+    assert tool_names == ["github_search", "github_search", "web_search", "web_search"]
+    assert all(t.origin == "replan" for t in added)
+    assert all("kubernetes 1.36 compatibility" in t.input["query"] for t in added)
+
+    # idempotent: 다시 replan해도 같은 항목에 대해 중복 생성되지 않는다.
+    assert [t for t in planner.replan(state) if state.add_task(t)] == []

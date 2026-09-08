@@ -15,6 +15,13 @@ from app.models.agent import Observation, Task, ToolResult
 
 _UNRESOLVED_COMPATIBILITY_STATUSES = {"WARNING", "INCOMPATIBLE", "UNKNOWN"}
 _UNRESOLVED_DEPRECATED_STATUSES = {"ACTION_REQUIRED", "UPGRADE_BLOCKER", "UNKNOWN"}
+# RAG에 근거가 없다고 매 replan마다 web_search/github를 무한정 시도하지 않도록,
+# 한 Observation당 외부 조사로 넘길 항목 수를 제한한다 (max_tool_calls 가드레일과
+# 별개의 1차 방어선 — Section 6 정보 탐색 우선순위: RAG로 안 풀리면 개방망으로 확장).
+_MAX_EXTERNAL_RESEARCH_ITEMS = 3
+# INCOMPATIBLE/WARNING처럼 이미 뭔가 문제 조짐이 있는 쪽을 UNKNOWN(그냥 근거 없음)보다
+# 먼저 외부 조사 대상으로 우선한다.
+_COMPATIBILITY_RESEARCH_PRIORITY = {"INCOMPATIBLE": 0, "WARNING": 1, "UNKNOWN": 2}
 
 
 class Observer:
@@ -49,15 +56,64 @@ class Observer:
         if result.tool_name == "cluster_inspector":
             self._flag_uncovered_components(result, state, obs)
         elif result.tool_name == "compatibility_checker":
-            statuses = {r["status"] for r in (result.data or {}).get("results", [])}
-            if statuses & _UNRESOLVED_COMPATIBILITY_STATUSES:
-                obs.requires_further_investigation = True
-                obs.impact = "Compatibility 미해결 항목 존재"
+            self._flag_unresolved_compatibility(result, state, obs)
         elif result.tool_name == "deprecated_api_checker":
-            findings = (result.data or {}).get("findings", [])
-            if any(f["status"] in _UNRESOLVED_DEPRECATED_STATUSES for f in findings):
-                obs.requires_further_investigation = True
-                obs.impact = "미해결 Deprecated/Removed API 존재"
+            self._flag_unresolved_deprecated_apis(result, state, obs)
+
+    def _flag_unresolved_compatibility(self, result: ToolResult, state: AgentState, obs: Observation) -> None:
+        """RAG만으로 안 풀리는 항목은 여기서 끝내지 않고 Open Network 조사로 넘긴다.
+
+        Section 6 정보 탐색 우선순위: 클러스터 실제 상태 -> 내부 RAG -> 공식 문서 ->
+        GitHub -> 기타 Web Search. RAG(compatibility_checker)가 UNKNOWN/WARNING/
+        INCOMPATIBLE로 남긴 항목은 web_search/github_search Task로 이어져야
+        "web search도 가능한데 RAG 근거 없다고 그냥 포기"하지 않는다.
+        """
+        results = (result.data or {}).get("results", [])
+        unresolved = [r for r in results if r["status"] in _UNRESOLVED_COMPATIBILITY_STATUSES]
+        if not unresolved:
+            return
+        obs.requires_further_investigation = True
+        obs.impact = f"Compatibility 미해결 항목 존재 ({len(unresolved)}건) — 개방망 추가 조사 필요"
+
+        unresolved.sort(key=lambda r: _COMPATIBILITY_RESEARCH_PRIORITY.get(r["status"], 9))
+        target_version = results[0].get("target_kubernetes_version")
+        seen_components: set[str] = set()
+        items = []
+        for r in unresolved:
+            component = r["component"]
+            if component in seen_components:
+                continue
+            seen_components.add(component)
+            items.append({"component": component, "current_version": r.get("current_version"), "target_version": r.get("target_kubernetes_version") or target_version})
+            if len(items) >= _MAX_EXTERNAL_RESEARCH_ITEMS:
+                break
+        obs.follow_up_hint = {"kind": "external_research", "reason": "compatibility", "items": items}
+
+    def _flag_unresolved_deprecated_apis(self, result: ToolResult, state: AgentState, obs: Observation) -> None:
+        findings = (result.data or {}).get("findings", [])
+        unresolved = [f for f in findings if f["status"] in _UNRESOLVED_DEPRECATED_STATUSES]
+        if not unresolved:
+            return
+        obs.requires_further_investigation = True
+        obs.impact = f"미해결 Deprecated/Removed API 존재 ({len(unresolved)}건) — 개방망 추가 조사 필요"
+
+        seen: set[str] = set()
+        items = []
+        for f in unresolved:
+            key = f"{f['resource_kind']}/{f['api_version']}"
+            if key in seen:
+                continue
+            seen.add(key)
+            items.append(
+                {
+                    "kind": f["resource_kind"],
+                    "api_version": f["api_version"],
+                    "target_version": f.get("evaluated_at_target_version"),
+                }
+            )
+            if len(items) >= _MAX_EXTERNAL_RESEARCH_ITEMS:
+                break
+        obs.follow_up_hint = {"kind": "external_research", "reason": "deprecated_api", "items": items}
 
     def _flag_uncovered_components(self, result: ToolResult, state: AgentState, obs: Observation) -> None:
         """새로 발견된(아직 Compatibility 확인 Task가 없는) 컴포넌트가 있으면 follow_up_hint를 세운다.
