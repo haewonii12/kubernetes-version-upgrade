@@ -69,26 +69,49 @@ class Observer:
         항목을 우선하되, RAG가 COMPATIBLE로 이미 판정한 항목도 최소 1건은 반드시
         2차 검증한다 — "RAG가 그렇다니 끝" 이 아니라 실제로 웹/GitHub에서 한 번
         더 확인해봐야 한다는 요구사항 때문이다.
+
+        중요: 조사 대상의 target_version은 반드시 사용자가 실제로 물어본 최종
+        목표 버전(state.goal.target_version)이어야 한다. upgrade_path는 여러 중간
+        minor를 거치는데(예: 1.32->1.33->...->1.37), RAG는 최종 목표 버전(1.37)에는
+        문서가 아예 없어 항상 UNKNOWN으로 나오는 반면 중간 minor(1.33~1.36)는 RAG
+        문서가 있어 INCOMPATIBLE/WARNING처럼 "더 심각해 보이는" 상태가 나올 수 있다.
+        컴포넌트별 "전 구간 중 가장 심각한 상태"만 보고 대표를 고르면, 정작 사용자가
+        물어본 최종 버전 자체는 한 번도 조사 대상에 안 오르고 중간 단계 이슈만
+        계속 조사하게 되는 문제가 있었다 (실제로 겪음: "1.37로 업그레이드해도
+        되냐"고 물었는데 웹 검색은 전부 "kubernetes 1.33"으로만 나감).
         """
         results = (result.data or {}).get("results", [])
         if not results:
             return
 
-        # 같은 컴포넌트가 upgrade_path의 여러 target minor에 대해 중복 등장하므로,
-        # 컴포넌트당 가장 심각한(=우선순위 숫자가 작은) 상태 하나만 대표로 남긴다.
-        by_component: dict[str, dict] = {}
+        target_version = state.goal.target_version if state.goal else None
+
+        # 컴포넌트별 "전 구간 중 가장 심각한 상태" — 중간 단계에 실제 문제가 있는
+        # 컴포넌트를 우선순위로 가려내는 용도로만 쓴다 (조사 대상 자체를 정하지 않는다).
+        worst_by_component: dict[str, dict] = {}
+        # 컴포넌트별 "최종 목표 버전에서의 상태" — 사용자가 실제로 물어본 것.
+        final_by_component: dict[str, dict] = {}
         for r in results:
-            current = by_component.get(r["component"])
+            component = r["component"]
+            current = worst_by_component.get(component)
             if current is None or _COMPATIBILITY_STATUS_SEVERITY.get(r["status"], 9) < _COMPATIBILITY_STATUS_SEVERITY.get(
                 current["status"], 9
             ):
-                by_component[r["component"]] = r
+                worst_by_component[component] = r
+            if target_version and r["target_kubernetes_version"] == target_version:
+                final_by_component[component] = r
+
+        # 최종 목표 버전에 대한 판정이 하나도 없으면(예: target_version 추출 실패)
+        # 이전처럼 전 구간 최악 상태로 fallback한다 — 조사 자체를 못 하는 것보다는 낫다.
+        candidates = list(final_by_component.values()) if final_by_component else list(worst_by_component.values())
 
         unresolved = sorted(
-            (r for r in by_component.values() if r["status"] != "COMPATIBLE"),
-            key=lambda r: _COMPATIBILITY_STATUS_SEVERITY.get(r["status"], 9),
+            (r for r in candidates if r["status"] != "COMPATIBLE"),
+            # 최종 버전에서는 다 같은 UNKNOWN이라도, 중간 구간에서 이미 문제가
+            # 확인된 컴포넌트를 먼저 조사한다 (진짜 위험할 가능성이 더 높다).
+            key=lambda r: _COMPATIBILITY_STATUS_SEVERITY.get(worst_by_component[r["component"]]["status"], 9),
         )
-        resolved = [r for r in by_component.values() if r["status"] == "COMPATIBLE"]
+        resolved = [r for r in candidates if r["status"] == "COMPATIBLE"]
 
         if unresolved:
             obs.requires_further_investigation = True
@@ -103,7 +126,12 @@ class Observer:
         picked += resolved[: _MAX_EXTERNAL_RESEARCH_ITEMS - len(picked)]
 
         items = [
-            {"component": r["component"], "current_version": r.get("current_version"), "target_version": r.get("target_kubernetes_version")}
+            {
+                "component": r["component"],
+                "current_version": r.get("current_version"),
+                # 대표 row가 아니라 항상 최종 목표 버전을 조사 질의에 쓴다.
+                "target_version": target_version or r.get("target_kubernetes_version"),
+            }
             for r in picked
         ]
         obs.follow_up_hint = {"kind": "external_research", "reason": "compatibility", "items": items}
