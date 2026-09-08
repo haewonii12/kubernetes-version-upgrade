@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from datetime import UTC, datetime
 
 from app.llm.client import LLMClient
@@ -17,6 +18,27 @@ from app.models.agent import Goal
 logger = logging.getLogger(__name__)
 
 _UPGRADE_KEYWORDS = ("업그레이드", "upgrade", "이관", "migration")
+
+# "1.32 클러스터를 1.37로 업그레이드" 처럼 목표 버전 바로 뒤에 "로/으로"+업그레이드 표현이
+# 붙는 한국어/영어 패턴을 우선 시도하고, 못 찾으면 "to 1.37" 류를, 그래도 없으면 문장에서
+# 마지막으로 언급된 버전 번호를 목표 버전으로 추정한다 (예: "1.32 -> 1.37"에서 1.37).
+_VERSION_TOKEN = r"v?(\d+\.\d+(?:\.\d+)?)"
+_TARGET_VERSION_PATTERNS = [
+    re.compile(_VERSION_TOKEN + r"\s*(?:로|으로)\s*(?:업그레이드|이관|migration|upgrade)", re.IGNORECASE),
+    re.compile(r"(?:to|→|->)\s*" + _VERSION_TOKEN, re.IGNORECASE),
+]
+_ANY_VERSION = re.compile(r"\b\d+\.\d+(?:\.\d+)?\b")
+
+
+def _extract_target_version_from_text(text: str) -> str | None:
+    for pattern in _TARGET_VERSION_PATTERNS:
+        match = pattern.search(text)
+        if match:
+            return match.group(1)
+    all_versions = _ANY_VERSION.findall(text)
+    # 버전이 두 개 이상 언급됐다면(현재 버전 + 목표 버전) 마지막 것을 목표로 본다.
+    # 하나만 언급됐다면 그건 보통 "현재 버전"을 설명하는 것이라 목표로 추정하지 않는다.
+    return all_versions[-1] if len(all_versions) >= 2 else None
 
 _GOAL_EXTRACTION_SYSTEM_PROMPT = (
     "당신은 Kubernetes 운영자의 자연어 요청을 구조화된 목표로 변환하는 보조 도구입니다. "
@@ -41,8 +63,14 @@ class GoalManager:
         return rule_based
 
     def _rule_based_parse(self, request: str, target_version: str | None) -> Goal:
+        # UI의 Target Version 드롭다운은 RAG에 이미 문서가 있는 버전만 보여준다
+        # (rag.list_target_kubernetes_versions). 아직 RAG에 없는 버전(예: 최신 릴리스)을
+        # 목표로 요청하면 드롭다운에는 없으므로, 사용자가 문장에 직접 쓴 버전을 놓치지 않도록
+        # 텍스트에서도 추출을 시도한다 — 명시적으로 넘어온 target_version이 우선한다.
+        resolved_target_version = target_version or _extract_target_version_from_text(request)
+
         text = request.lower()
-        is_upgrade_goal = target_version is not None or any(k in text for k in _UPGRADE_KEYWORDS)
+        is_upgrade_goal = resolved_target_version is not None or any(k in text for k in _UPGRADE_KEYWORDS)
 
         if is_upgrade_goal:
             criteria = [
@@ -56,7 +84,7 @@ class GoalManager:
 
         return Goal(
             goal=request,
-            target_version=target_version,
+            target_version=resolved_target_version,
             success_criteria=criteria,
             created_at=datetime.now(UTC),
         )
@@ -76,7 +104,7 @@ class GoalManager:
             data = json.loads(raw)
             return Goal(
                 goal=data.get("goal") or fallback.goal,
-                target_version=data.get("target_version") or target_version,
+                target_version=data.get("target_version") or fallback.target_version,
                 success_criteria=data.get("success_criteria") or fallback.success_criteria,
                 created_at=datetime.now(UTC),
             )

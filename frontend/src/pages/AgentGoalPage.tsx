@@ -73,18 +73,23 @@ export default function AgentGoalPage({ onStarted }: Props) {
 
           <div>
             <label className="block text-sm font-medium text-slate-700">목표 버전 (선택사항)</label>
-            <select
+            <input
+              type="text"
+              list="agent-target-version-options"
               value={targetVersion}
               onChange={(e) => setTargetVersion(e.target.value)}
+              placeholder="예: 1.37 (비워두면 위 목표 문장에서 자동으로 추출을 시도합니다)"
               className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
-            >
-              <option value="">지정 안 함 (현황 파악만 하는 목표라면 비워두세요)</option>
+            />
+            <datalist id="agent-target-version-options">
               {targetVersions.map((v) => (
-                <option key={v} value={v}>
-                  Kubernetes {v}
-                </option>
+                <option key={v} value={v} />
               ))}
-            </select>
+            </datalist>
+            <p className="mt-1 text-xs text-slate-400">
+              직접 입력할 수 있습니다 — RAG에 아직 문서가 없는 최신 버전도 입력 가능하며, 근거가
+              부족한 항목은 추측 없이 "확인 필요"로 명시됩니다.
+            </p>
           </div>
 
           <div className="flex items-center gap-3 rounded-lg border border-slate-200 p-3">
