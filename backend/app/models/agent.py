@@ -183,7 +183,7 @@ class FinalConclusion(BaseModel):
     # risk_analyzer/compatibility_checker/deprecated_api_checker가 이미 계산해 둔
     # 구조화된 결과를 그대로 노출한다 (app.models.risk 재사용, 재구현 아님).
     readiness: ReadinessScore | None = None
-    top_risks: list[RiskFinding] = Field(default_factory=list)
+    risks: list[RiskFinding] = Field(default_factory=list)  # 심각도순 전체 목록 (dedup만 적용, 개수 제한 없음)
     unresolved_components: list[str] = Field(default_factory=list)
     deprecated_action_required_count: int = 0
 

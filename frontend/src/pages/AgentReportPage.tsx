@@ -18,7 +18,7 @@ const TASK_STATUS_STYLE: Record<string, string> = {
 
 export default function AgentReportPage({ report, onReset }: Props) {
   const { goal, plan_history, observations, tool_calls, final_conclusion, proposed_actions } = report;
-  const { readiness, top_risks, unresolved_components, deprecated_action_required_count } = final_conclusion;
+  const { readiness, risks, unresolved_components, deprecated_action_required_count } = final_conclusion;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -62,11 +62,11 @@ export default function AgentReportPage({ report, onReset }: Props) {
         </div>
       )}
 
-      {top_risks.length > 0 && (
+      {risks.length > 0 && (
         <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-          <h3 className="px-6 pt-6 text-sm font-semibold text-slate-900">주요 Risk</h3>
-          <ul className="mt-3 divide-y divide-slate-100">
-            {top_risks.map((risk, i) => (
+          <h3 className="px-6 pt-6 text-sm font-semibold text-slate-900">Risk ({risks.length})</h3>
+          <ul className="mt-3 max-h-[32rem] divide-y divide-slate-100 overflow-y-auto">
+            {risks.map((risk, i) => (
               <RiskRow key={i} risk={risk} />
             ))}
           </ul>

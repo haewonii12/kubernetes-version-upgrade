@@ -151,7 +151,7 @@ class AgentRuntime:
                 citations=state.evidence,
                 stopped_reason=stopped_reason,
                 readiness=structured["readiness"],
-                top_risks=structured["top_risks"],
+                risks=structured["risks"],
                 unresolved_components=structured["unresolved_components"],
                 deprecated_action_required_count=structured["deprecated_action_required_count"],
             )
@@ -192,7 +192,8 @@ class AgentRuntime:
         for r in risks:
             normalized = re.sub(r"Kubernetes\s+\d+\.\d+(\.\d+)?\s*기준", "Kubernetes X.Y 기준", r["finding"])
             deduped.setdefault((r["severity"], normalized), r)
-        top_risks = sorted(deduped.values(), key=lambda r: severity_order.get(r["severity"], 9))[:5]
+        # UI에는 전체를 보여준다 — 개수 제한은 LLM 프롬프트 컨텍스트를 만들 때만 따로 건다.
+        all_risks = sorted(deduped.values(), key=lambda r: severity_order.get(r["severity"], 9))
 
         unresolved_components = self._unresolved_compatibility_components(state)
 
@@ -201,7 +202,7 @@ class AgentRuntime:
 
         return {
             "readiness": state.memory_working.get("readiness"),
-            "top_risks": top_risks,
+            "risks": all_risks,
             "unresolved_components": unresolved_components,
             "deprecated_action_required_count": deprecated_action_required_count,
         }
@@ -229,9 +230,12 @@ class AgentRuntime:
                     f"(BLOCKER {readiness['blocker_count']}, HIGH {readiness['high_count']}, "
                     f"MEDIUM {readiness['medium_count']}, LOW {readiness['low_count']})"
                 )
-            if structured["top_risks"]:
+            # LLM 프롬프트는 토큰 비용/집중도를 위해 상위 5건만 넣는다 — UI는
+            # FinalConclusion.risks 전체를 그대로 보여준다 (개수 제한 없음).
+            top_risks_for_prompt = structured["risks"][:5]
+            if top_risks_for_prompt:
                 context_lines.append("주요 Risk:")
-                context_lines.extend(f"- [{r['severity']}] {r['finding']} — {r['recommendation']}" for r in structured["top_risks"])
+                context_lines.extend(f"- [{r['severity']}] {r['finding']} — {r['recommendation']}" for r in top_risks_for_prompt)
             if structured["unresolved_components"]:
                 context_lines.append("수동 확인 필요 컴포넌트: " + ", ".join(structured["unresolved_components"][:15]))
             if structured["deprecated_action_required_count"]:

@@ -89,7 +89,7 @@ export interface FinalConclusion {
   citations: Evidence[];
   stopped_reason: string;
   readiness: ReadinessScore | null;
-  top_risks: RiskFinding[];
+  risks: RiskFinding[];
   unresolved_components: string[];
   deprecated_action_required_count: number;
 }
