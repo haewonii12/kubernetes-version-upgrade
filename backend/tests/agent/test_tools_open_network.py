@@ -15,7 +15,7 @@ from app.models.agent import Task
 async def test_web_search_without_api_key_never_calls_network(agent_state_factory, tool_context_factory, httpx_mock):
     state = agent_state_factory(goal_text="search")
     ctx = tool_context_factory(state)
-    tool = WebSearchTool(api_key=None, endpoint="https://api.search.brave.com/res/v1/web/search")
+    tool = WebSearchTool(api_key=None, endpoint="https://api.tavily.com/search")
 
     result = await tool.execute(Task(id="1", description="search calico"), ctx)
 
@@ -27,12 +27,13 @@ async def test_web_search_without_api_key_never_calls_network(agent_state_factor
 @pytest.mark.asyncio
 async def test_web_search_with_api_key_calls_endpoint(agent_state_factory, tool_context_factory, httpx_mock):
     httpx_mock.add_response(
-        url="https://api.search.brave.com/res/v1/web/search?q=calico+3.30.7+kubernetes+1.37",
-        json={"web": {"results": [{"title": "Calico compatibility", "url": "https://example.com", "description": "..."}]}},
+        url="https://api.tavily.com/search",
+        method="POST",
+        json={"results": [{"title": "Calico compatibility", "url": "https://example.com", "content": "..."}]},
     )
     state = agent_state_factory(goal_text="search")
     ctx = tool_context_factory(state)
-    tool = WebSearchTool(api_key="fake-key", endpoint="https://api.search.brave.com/res/v1/web/search")
+    tool = WebSearchTool(api_key="fake-key", endpoint="https://api.tavily.com/search")
 
     result = await tool.execute(Task(id="1", description="x", input={"query": "calico 3.30.7 kubernetes 1.37"}), ctx)
 

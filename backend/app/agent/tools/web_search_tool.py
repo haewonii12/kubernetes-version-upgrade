@@ -1,4 +1,10 @@
-"""WebSearchTool — 실제 Web Search API 호출 + API 키 없으면 graceful fallback."""
+"""WebSearchTool — Tavily Search API 호출 + API 키 없으면 graceful fallback.
+
+Tavily(https://tavily.com)는 LLM 에이전트용으로 만들어진 검색 API로, 가입만
+하면 무료 티어(월 1000회)로 바로 키가 발급된다. 요청은 JSON POST
+``{"api_key": ..., "query": ..., "max_results": N}``, 응답은
+``{"results": [{"title", "url", "content"}, ...]}`` 형태다.
+"""
 
 from __future__ import annotations
 
@@ -30,13 +36,12 @@ class WebSearchTool(OpenNetworkTool):
         query = task.input.get("query") or task.description
         try:
             async with httpx.AsyncClient(timeout=self._timeout) as client:
-                resp = await client.get(
+                resp = await client.post(
                     self._endpoint,
-                    params={"q": query},
-                    headers={"X-Subscription-Token": self._api_key or ""},
+                    json={"api_key": self._api_key, "query": query, "max_results": 5},
                 )
             resp.raise_for_status()
-            results = resp.json().get("web", {}).get("results", [])[:5]
+            results = resp.json().get("results", [])[:5]
         except Exception as exc:  # noqa: BLE001 — 네트워크 실패는 크래시가 아니라 실패 결과로
             logger.warning("web_search 호출 실패: %s", exc, exc_info=True)
             return ToolResult(tool_name=self.name, ok=False, summary=f"웹 검색 실패: {exc}", error=str(exc))
@@ -46,7 +51,7 @@ class WebSearchTool(OpenNetworkTool):
                 source_type="web_search",
                 title=r.get("title", ""),
                 url=r.get("url"),
-                excerpt=r.get("description"),
+                excerpt=r.get("content"),
                 retrieved_at=datetime.now(UTC),
             )
             for r in results

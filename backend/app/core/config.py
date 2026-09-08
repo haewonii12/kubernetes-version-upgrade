@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     # not_configured 로 graceful fallback한다 (LLMClient.is_configured와 동일 철학).
     agent_open_network_enabled: bool = False
     agent_web_search_api_key: str | None = None
-    agent_web_search_endpoint: str = "https://api.search.brave.com/res/v1/web/search"
+    agent_web_search_endpoint: str = "https://api.tavily.com/search"
     agent_github_token: str | None = None
     agent_prometheus_endpoint: str | None = None
     agent_grafana_endpoint: str | None = None
