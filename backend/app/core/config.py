@@ -37,6 +37,12 @@ class Settings(BaseSettings):
 
     cors_allow_origins: list[str] = ["http://localhost:3000"]
 
+    # LLM Endpoint/Model은 요청마다 UI에서 받지만(analysis_service.py,
+    # agent_runtime_service.py), API 키는 브라우저를 거치지 않고 백엔드에만
+    # 설정한다. OpenRouter처럼 인증이 필요한 서버를 쓸 때 여기에 넣는다
+    # (endpoint=https://openrouter.ai/api/v1, model=예: openai/gpt-4o-mini).
+    llm_api_key: str | None = None
+
     # --- Autonomous Agent (agi 브랜치, Section 6/8/10) ---
     # Open Network 사용 여부 스위치. False면 WebSearch/공식문서/GitHub Tool이 모두
     # not_configured 로 graceful fallback한다 (LLMClient.is_configured와 동일 철학).

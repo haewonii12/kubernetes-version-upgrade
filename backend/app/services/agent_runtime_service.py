@@ -51,7 +51,11 @@ async def run_agent(session: AgentRunSession, kubeconfig_path: Path | None) -> N
             )
 
         rag = analysis_service.get_rag()
-        llm_client = LLMClient(session.llm_endpoint, session.llm_model) if session.llm_endpoint and session.llm_model else None
+        llm_client = (
+            LLMClient(session.llm_endpoint, session.llm_model, api_key=settings.llm_api_key)
+            if session.llm_endpoint and session.llm_model
+            else None
+        )
         registry = build_default_registry(settings=settings)
         runtime = build_agent_runtime(mcp_client=client, rag=rag, llm_client=llm_client, registry=registry, settings=settings)
 

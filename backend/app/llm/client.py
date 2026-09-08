@@ -2,7 +2,10 @@
 
 사용자가 Web UI에서 LLM Endpoint/Model을 직접 입력한 경우에만 생성된다
 (Section 24/25). OpenAI 호환 ``/v1/chat/completions`` 스펙을 쓰는 서버라면
-어디든(로컬 Ollama, vLLM, LM Studio 등) 붙을 수 있다.
+어디든(로컬 Ollama, vLLM, LM Studio, OpenRouter 등) 붙을 수 있다. API 키가
+필요한 서버(OpenRouter 등)는 ``api_key`` 를 넘기면 ``Authorization: Bearer``
+헤더로 붙는다 — 키는 요청마다 브라우저에서 받지 않고 ``settings.llm_api_key``
+(``UPGRADE_AGENT_LLM_API_KEY``)로 백엔드에만 설정한다 (Section 29 키 노출 최소화).
 
 **중요**: 이 클라이언트는 Compatibility/Risk/Deprecated API 판정에는 전혀
 관여하지 않는다 — 그 판정은 지금처럼 100% ``rag/documents/*.md``의 구조화된
@@ -41,10 +44,18 @@ def _normalize_chat_completions_url(endpoint: str) -> str | None:
 
 
 class LLMClient:
-    def __init__(self, endpoint: str, model: str, timeout: float = DEFAULT_TIMEOUT_SECONDS) -> None:
+    def __init__(
+        self,
+        endpoint: str,
+        model: str,
+        timeout: float = DEFAULT_TIMEOUT_SECONDS,
+        *,
+        api_key: str | None = None,
+    ) -> None:
         self._url = _normalize_chat_completions_url(endpoint)
         self._model = model.strip()
         self._timeout = timeout
+        self._api_key = api_key.strip() if api_key else None
 
     @property
     def is_configured(self) -> bool:
@@ -60,6 +71,7 @@ class LLMClient:
         """
         if not self.is_configured:
             return None
+        headers = {"Authorization": f"Bearer {self._api_key}"} if self._api_key else None
         try:
             response = httpx.post(
                 self._url,
@@ -69,6 +81,7 @@ class LLMClient:
                     "stream": False,
                     "temperature": temperature,
                 },
+                headers=headers,
                 timeout=self._timeout,
             )
             response.raise_for_status()

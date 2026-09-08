@@ -77,7 +77,7 @@ def run_analysis(session: AnalysisSession, kubeconfig_path: Path | None) -> None
         rag = get_rag()
         llm_client = None
         if session.llm_endpoint and session.llm_model:
-            llm_client = LLMClient(session.llm_endpoint, session.llm_model)
+            llm_client = LLMClient(session.llm_endpoint, session.llm_model, api_key=settings.llm_api_key)
         graph = build_graph(client, rag, llm_client=llm_client)
 
         total = len(_NODE_ORDER)
