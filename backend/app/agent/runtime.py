@@ -18,6 +18,8 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import TypedDict
 
+import anyio
+
 from langgraph.graph import END, START, StateGraph
 
 from app.agent.critic import Critic
@@ -75,9 +77,14 @@ class AgentRuntime:
                 )
             )
 
-        def goal_manager_node(g: GraphState) -> dict:
+        async def goal_manager_node(g: GraphState) -> dict:
             state = g["agent_state"]
-            goal = self.goal_manager.parse_goal(state.raw_request, state.goal_target_version_hint)
+            # GoalManager.parse_goal은 LLM이 설정되어 있으면 내부적으로 동기(sync)
+            # httpx 호출을 한다 — 이벤트 루프에서 그대로 부르면 응답이 오는 동안
+            # SSE polling을 포함한 서버 전체가 멈춘다 (실제로 겪음: LLM 기본값을
+            # 켠 뒤 "연결 중..."에서 진행이 아예 안 되는 것처럼 보였음). 워커
+            # 스레드로 넘겨서 이벤트 루프를 막지 않는다.
+            goal = await anyio.to_thread.run_sync(self.goal_manager.parse_goal, state.raw_request, state.goal_target_version_hint)
             state.set_goal(goal)
             _emit(AgentEventType.GOAL_CREATED, f"목표 파싱 완료: {goal.goal}", state)
             return {"agent_state": state}
@@ -127,7 +134,7 @@ class AgentRuntime:
                 return "finalizer"
             return "planner"
 
-        def finalizer_node(g: GraphState) -> dict:
+        async def finalizer_node(g: GraphState) -> dict:
             state = g["agent_state"]
             verdict_dict = state.memory_working.get("_last_verdict", {})
             verdict = CriticVerdict.model_validate(verdict_dict) if verdict_dict else None
@@ -144,8 +151,11 @@ class AgentRuntime:
                 status = AgentStatus.COMPLETED
 
             structured = self._build_structured_conclusion(state)
+            # _build_summary도 LLM이 설정되어 있으면 동기 httpx 호출을 한다 —
+            # goal_manager_node와 동일한 이유로 워커 스레드로 넘긴다.
+            summary = await anyio.to_thread.run_sync(self._build_summary, state, verdict, stopped_reason, structured)
             conclusion = FinalConclusion(
-                summary=self._build_summary(state, verdict, stopped_reason, structured),
+                summary=summary,
                 goal_met=sufficient,
                 missing_evidence=verdict.missing_evidence if verdict else [],
                 citations=state.evidence,

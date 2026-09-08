@@ -17,6 +17,8 @@ from __future__ import annotations
 import json
 import logging
 
+import anyio
+
 from app.agent.tools.base import AgentTool, ToolContext
 from app.models.agent import Task, ToolCapability, ToolResult
 from app.models.compatibility import CompatibilityResult, CompatibilityStatus
@@ -62,11 +64,15 @@ class CompatibilityLlmVerifierTool(AgentTool):
             f"[웹 검색/GitHub 근거]\n{evidence_text}"
         )
 
-        raw = ctx.llm_client.complete(
+        # LLMClient.complete()는 동기(sync) httpx 호출이다 — execute()는 async지만
+        # 그대로 부르면 응답이 올 때까지 이벤트 루프 전체가 막힌다 (SSE 포함).
+        # 워커 스레드로 넘긴다.
+        raw = await anyio.to_thread.run_sync(
+            ctx.llm_client.complete,
             [
                 {"role": "system", "content": _SYSTEM_PROMPT},
                 {"role": "user", "content": user_prompt},
-            ]
+            ],
         )
         if raw is None:
             return ToolResult(tool_name=self.name, ok=False, summary="LLM 호출이 실패했습니다.", error="llm_call_failed")
