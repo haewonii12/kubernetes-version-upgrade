@@ -17,6 +17,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from app.models.agent_safety import ProposedAction
+from app.models.risk import ReadinessScore, RiskFinding
 
 
 class ToolCapability(str, Enum):
@@ -178,6 +179,13 @@ class FinalConclusion(BaseModel):
     missing_evidence: list[str] = Field(default_factory=list)
     citations: list[Evidence] = Field(default_factory=list)
     stopped_reason: str  # "critic_sufficient" | "max_iterations" | "max_tool_calls" | "planner_exhausted" | "error"
+    # 프론트가 summary 문자열을 파싱하지 않고 바로 카드/뱃지로 렌더링할 수 있도록,
+    # risk_analyzer/compatibility_checker/deprecated_api_checker가 이미 계산해 둔
+    # 구조화된 결과를 그대로 노출한다 (app.models.risk 재사용, 재구현 아님).
+    readiness: ReadinessScore | None = None
+    top_risks: list[RiskFinding] = Field(default_factory=list)
+    unresolved_components: list[str] = Field(default_factory=list)
+    deprecated_action_required_count: int = 0
 
 
 class AgentReport(BaseModel):

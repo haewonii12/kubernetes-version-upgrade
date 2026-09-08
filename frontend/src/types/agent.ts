@@ -1,5 +1,7 @@
 // backend/app/models/agent.py 를 1:1로 미러링한다.
 
+import type { ReadinessScore, RiskFinding } from "./report";
+
 export type ToolCapability =
   | "cluster_read"
   | "compatibility"
@@ -86,6 +88,10 @@ export interface FinalConclusion {
   missing_evidence: string[];
   citations: Evidence[];
   stopped_reason: string;
+  readiness: ReadinessScore | null;
+  top_risks: RiskFinding[];
+  unresolved_components: string[];
+  deprecated_action_required_count: number;
 }
 
 export interface AgentReport {

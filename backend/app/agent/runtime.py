@@ -13,6 +13,7 @@ Executor 노드는 그 tick의 PENDING Task 배치 전체를 한 번에 실행�
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import TypedDict
@@ -142,12 +143,17 @@ class AgentRuntime:
                 stopped_reason = "critic_sufficient"
                 status = AgentStatus.COMPLETED
 
+            structured = self._build_structured_conclusion(state)
             conclusion = FinalConclusion(
-                summary=self._build_summary(state, verdict, stopped_reason),
+                summary=self._build_summary(state, verdict, stopped_reason, structured),
                 goal_met=sufficient,
                 missing_evidence=verdict.missing_evidence if verdict else [],
                 citations=state.evidence,
                 stopped_reason=stopped_reason,
+                readiness=structured["readiness"],
+                top_risks=structured["top_risks"],
+                unresolved_components=structured["unresolved_components"],
+                deprecated_action_required_count=structured["deprecated_action_required_count"],
             )
             state.finalize(conclusion, status)
             _emit(AgentEventType.GOAL_COMPLETED, conclusion.summary, state)
@@ -171,57 +177,70 @@ class AgentRuntime:
 
         return graph.compile()
 
-    def _build_summary(self, state: AgentState, verdict: CriticVerdict | None, stopped_reason: str) -> str:
-        """실제로 수집한 Risk/Readiness/Compatibility 데이터를 결론에 반영한다.
-
-        예전에는 goal/tool_names/missing_evidence만 나열해서, cluster_inspector가
-        Risk 90건·HIGH 26건·복잡도 100%까지 다 계산해놓고도 최종 요약에는 그
-        숫자가 하나도 안 나오는 문제가 있었다 — Observation 목록을 직접 훑어야만
-        보이는 정보였다. 이제 ``memory_working`` 에 이미 쌓여있는 구조화된 결과를
-        직접 읽어 결론 문장에 포함시킨다.
+    def _build_structured_conclusion(self, state: AgentState) -> dict:
+        """risk_analyzer/compatibility_checker/deprecated_api_checker가 이미 계산해 둔
+        결과를 FinalConclusion의 구조화된 필드로 뽑아낸다 — 프론트가 이 문자열을
+        파싱하지 않고 카드/뱃지로 바로 렌더링할 수 있도록 하기 위함이다 (예전에는
+        이 데이터가 summary 문자열 하나로만 뭉쳐 나가서 UI가 통짜 텍스트만 보여줬다).
         """
-        goal_text = state.goal.goal if state.goal else "(unknown goal)"
-        lines = [f"목표: {goal_text}"]
-
-        readiness = state.memory_working.get("readiness")
-        if readiness:
-            lines.append(
-                f"업그레이드 준비 복잡도: {readiness['complexity']}% "
-                f"(BLOCKER {readiness['blocker_count']}, HIGH {readiness['high_count']}, "
-                f"MEDIUM {readiness['medium_count']}, LOW {readiness['low_count']})"
-            )
-
         severity_order = {"BLOCKER": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, "INFO": 4}
         risks = state.memory_working.get("risks", [])
-        # 같은 finding이 upgrade_path의 여러 target minor마다 반복 등장할 수 있으므로
-        # (예: 같은 BLOCKER가 1.33/1.34/1.35 단계마다 한 번씩) 표시 전에 문구로 dedup한다.
-        deduped_risks = list({r["finding"]: r for r in risks}.values())
-        top_risks = sorted(deduped_risks, key=lambda r: severity_order.get(r["severity"], 9))[:5]
-        if top_risks:
-            lines.append("주요 Risk:")
-            lines.extend(f"- [{r['severity']}] {r['finding']} — {r['recommendation']}" for r in top_risks)
+        # 같은 근본 원인이 upgrade_path의 여러 target minor마다 한 번씩 반복 등장할 수
+        # 있다 (예: fleet-agent INCOMPATIBLE이 1.33/1.34/1.35/1.36 각각에 대해 하나씩).
+        # finding 문구에서 "Kubernetes 1.33 기준" 같은 버전 부분만 정규화해 dedup한다.
+        deduped: dict[tuple[str, str], dict] = {}
+        for r in risks:
+            normalized = re.sub(r"Kubernetes\s+\d+\.\d+(\.\d+)?\s*기준", "Kubernetes X.Y 기준", r["finding"])
+            deduped.setdefault((r["severity"], normalized), r)
+        top_risks = sorted(deduped.values(), key=lambda r: severity_order.get(r["severity"], 9))[:5]
 
         unresolved_components = self._unresolved_compatibility_components(state)
-        if unresolved_components:
-            shown = ", ".join(unresolved_components[:15])
-            more = f" 외 {len(unresolved_components) - 15}개" if len(unresolved_components) > 15 else ""
-            lines.append(f"수동 확인 필요 컴포넌트 ({len(unresolved_components)}개): {shown}{more}")
 
         deprecated_findings = state.memory_working.get("deprecated_findings", [])
-        actionable_deprecated = [f for f in deprecated_findings if f["status"] != "OK"]
-        if actionable_deprecated:
-            lines.append(f"Deprecated/Removed API 조치 필요: {len(actionable_deprecated)}건")
+        deprecated_action_required_count = sum(1 for f in deprecated_findings if f["status"] != "OK")
 
-        lines.append(f"종료 사유: {stopped_reason}")
-        if verdict and not verdict.sufficient:
-            lines.append("Critic 판단(불충분 사유): " + "; ".join(verdict.missing_evidence))
+        return {
+            "readiness": state.memory_working.get("readiness"),
+            "top_risks": top_risks,
+            "unresolved_components": unresolved_components,
+            "deprecated_action_required_count": deprecated_action_required_count,
+        }
 
-        fallback_summary = "\n".join(lines)
+    def _build_summary(
+        self, state: AgentState, verdict: CriticVerdict | None, stopped_reason: str, structured: dict
+    ) -> str:
+        """서술형 결론. 규칙 기반 fallback은 짧게, LLM이 설정되면 구조화된 데이터를
+        근거로 실제 권고(지금 진행해도 되는지/핵심 위험/사전 확인 사항)를 생성한다.
+        """
+        goal_text = state.goal.goal if state.goal else "(unknown goal)"
+        readiness = structured["readiness"]
+        fallback_parts = [f"목표: {goal_text}", f"종료 사유: {stopped_reason}"]
+        if readiness:
+            fallback_parts.append(f"업그레이드 준비 복잡도 {readiness['complexity']}%")
+        if not (verdict and verdict.sufficient):
+            fallback_parts.append("아래 상세 결과(Risk/미해결 컴포넌트/근거 출처)를 확인하세요")
+        fallback_summary = " — ".join(fallback_parts)
 
         if self._llm_client is not None and self._llm_client.is_configured:
-            context = fallback_summary + "\n\n외부 조사로 확보한 근거 (RAG 제외):\n" + "\n".join(
-                f"- [{ev.source_type}] {ev.title}" for ev in state.evidence if ev.source_type != "rag"
-            )[:3000]
+            context_lines = [f"목표: {goal_text}"]
+            if readiness:
+                context_lines.append(
+                    f"업그레이드 준비 복잡도: {readiness['complexity']}% "
+                    f"(BLOCKER {readiness['blocker_count']}, HIGH {readiness['high_count']}, "
+                    f"MEDIUM {readiness['medium_count']}, LOW {readiness['low_count']})"
+                )
+            if structured["top_risks"]:
+                context_lines.append("주요 Risk:")
+                context_lines.extend(f"- [{r['severity']}] {r['finding']} — {r['recommendation']}" for r in structured["top_risks"])
+            if structured["unresolved_components"]:
+                context_lines.append("수동 확인 필요 컴포넌트: " + ", ".join(structured["unresolved_components"][:15]))
+            if structured["deprecated_action_required_count"]:
+                context_lines.append(f"Deprecated/Removed API 조치 필요: {structured['deprecated_action_required_count']}건")
+            if verdict and not verdict.sufficient:
+                context_lines.append("Critic 판단(불충분 사유): " + "; ".join(verdict.missing_evidence))
+            external_evidence = "\n".join(f"- [{ev.source_type}] {ev.title}" for ev in state.evidence if ev.source_type != "rag")
+            context = "\n".join(context_lines) + "\n\n외부 조사로 확보한 근거 (RAG 제외):\n" + external_evidence[:3000]
+
             generated = self._llm_client.summarize(
                 "당신은 Kubernetes 업그레이드 위험도를 평가하는 전문가입니다. 위 데이터를 종합해 "
                 "이번 업그레이드를 지금 진행해도 되는지, 가장 중요한 위험 요인은 무엇인지, 진행 전에 "
