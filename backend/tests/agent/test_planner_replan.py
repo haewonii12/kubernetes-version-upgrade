@@ -110,7 +110,9 @@ def test_unresolved_compatibility_escalates_to_web_and_github_search(agent_state
     tool_names = sorted(t.tool_name for t in added)
     assert tool_names == ["github_search", "github_search", "web_search", "web_search"]
     assert all(t.origin == "replan" for t in added)
-    assert all("kubernetes 1.36 compatibility" in t.input["query"] for t in added)
+    assert all("kubernetes 1.36" in t.input["query"] for t in added)
+    assert all(t.input.get("component") in {"kube-proxy", "rhel"} for t in added)
+    assert all(t.input.get("target_version") == "1.36" for t in added)
 
 
 def _compatibility_result_all_compatible() -> ToolResult:

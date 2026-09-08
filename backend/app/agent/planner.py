@@ -111,6 +111,8 @@ class Planner:
             return self._tasks_for_new_component(hint, state)
         if kind == "external_research":
             return self._tasks_for_external_research(hint, state)
+        if kind == "llm_verify_compatibility":
+            return self._tasks_for_llm_verification(hint, state)
         return []
 
     def _tasks_for_new_component(self, hint: dict, state: AgentState) -> list[Task]:
@@ -141,17 +143,31 @@ class Planner:
         Observer가 이미 항목 수를 제한해서 넘기므로(``_MAX_EXTERNAL_RESEARCH_ITEMS``)
         여기서는 항목마다 web_search + github_search Task 두 개를 만들기만 한다 —
         각 Tool은 API 키/설정이 없으면 스스로 not_configured로 안전하게 끝난다.
+
+        compatibility 항목은 upgrade_path 전 구간(예: 1.33~1.37)을 질의문에 함께
+        언급한다 — RAG가 이미 판정한 중간 버전도 웹 근거로 다시 검증하고, RAG에
+        아예 없는 최종 목표 버전은 웹 근거로 채워 넣기 위해서다 (뒤이어 실행되는
+        ``compatibility_llm_verifier`` 가 이 검색 결과를 RAG 판정과 종합한다).
+        component/target_version을 input에 남겨 Observer가 web_search+github_search
+        완료 여부를 짝지어 확인할 수 있게 한다.
         """
         reason = hint.get("reason")
         tasks: list[Task] = []
         for item in hint.get("items", []):
+            task_input: dict = {}
             if reason == "compatibility":
                 subject = f"{item['component']}:{item.get('target_version')}"
+                path_minors_set = {j["target_kubernetes_version"] for j in item.get("rag_judgments", [])}
+                if item.get("target_version"):
+                    path_minors_set.add(item["target_version"])
+                path_minors_set.discard("")
+                path_str = ", ".join(sorted(path_minors_set)) if path_minors_set else str(item.get("target_version"))
                 query = (
                     f"{item['component']} {item.get('current_version') or ''} kubernetes "
-                    f"{item.get('target_version')} compatibility".strip()
+                    f"{item.get('target_version')} upgrade compatibility (path: {path_str})".strip()
                 )
-                description = f"{item['component']} Kubernetes {item.get('target_version')} 호환성 웹 조사"
+                description = f"{item['component']} Kubernetes {item.get('target_version')} 호환성 웹 조사 (경로: {path_str})"
+                task_input = {"component": item["component"], "target_version": item.get("target_version")}
             elif reason == "deprecated_api":
                 subject = f"{item['kind']}/{item['api_version']}:{item.get('target_version')}"
                 query = f"{item['kind']} {item['api_version']} kubernetes {item.get('target_version')} deprecated removed"
@@ -171,10 +187,32 @@ class Planner:
                             ToolCapability.WEB_SEARCH if tool_name == "web_search" else ToolCapability.SOURCE_CODE
                         ),
                         tool_name=tool_name,
-                        input={"query": query},
+                        input={"query": query, **task_input},
                         origin="replan",
                         subject_key=key,
                         created_at_iteration=state.iteration,
                     )
                 )
         return tasks
+
+    def _tasks_for_llm_verification(self, hint: dict, state: AgentState) -> list[Task]:
+        key = hint["verify_subject_key"]
+        if any(t.subject_key == key for t in state.plan):
+            return []
+        return [
+            Task(
+                id=_new_id(),
+                description=f"{hint['component']} 웹/GitHub 근거 기반 Compatibility 재검증",
+                capability_hint=ToolCapability.COMPATIBILITY,
+                tool_name="compatibility_llm_verifier",
+                input={
+                    "component": hint["component"],
+                    "current_version": hint.get("current_version"),
+                    "rag_judgments": hint.get("rag_judgments", []),
+                    "evidence": hint.get("evidence", []),
+                },
+                origin="replan",
+                subject_key=key,
+                created_at_iteration=state.iteration,
+            )
+        ]

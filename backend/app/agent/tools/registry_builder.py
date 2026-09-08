@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from app.agent.tools import ToolRegistry
 from app.agent.tools.cluster_tools import ClusterInspectorTool
+from app.agent.tools.compatibility_llm_verifier_tool import CompatibilityLlmVerifierTool
 from app.agent.tools.compatibility_tool import CompatibilityCheckerTool
 from app.agent.tools.deprecated_api_tool import DeprecatedApiTool
 from app.agent.tools.github_tool import GitHubTool
@@ -24,6 +25,7 @@ def build_default_registry(*, settings: Settings) -> ToolRegistry:
     registry = ToolRegistry()
     registry.register(ClusterInspectorTool())
     registry.register(CompatibilityCheckerTool())
+    registry.register(CompatibilityLlmVerifierTool())
     registry.register(DeprecatedApiTool())
     registry.register(RiskAnalyzerTool())
     registry.register(InternalRagTool())

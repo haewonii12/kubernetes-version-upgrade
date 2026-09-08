@@ -46,7 +46,58 @@ class Observer:
             state.add_observation(obs)
             state.add_evidence(result.evidence)
             observations.append(obs)
+
+        self._flag_ready_for_llm_verification(results, state, observations)
         return observations
+
+    def _flag_ready_for_llm_verification(
+        self, results: list[tuple[Task, ToolResult]], state: AgentState, observations: list[Observation]
+    ) -> None:
+        """web_search + github_search가 같은 컴포넌트에 대해 한 배치 안에서 함께 끝나면
+        (Planner가 둘을 같이 만들므로 보통 같은 tick에 완료된다), LLM 재검증 Task로
+        이어지는 hint를 세운다. LLM이 설정되지 않았으면 아예 시도하지 않는다 — 이
+        단계는 순수 규칙 기반 판정을 대체하는 게 아니라 그 위에 얹는 보강이기 때문에,
+        LLM 없이 무리하게 진행하지 않는다.
+        """
+        if self._llm is None or not self._llm.is_configured:
+            return
+
+        by_subject: dict[str, dict[str, tuple[Task, ToolResult]]] = {}
+        for task, result in results:
+            component = task.input.get("component")
+            target_version = task.input.get("target_version")
+            if not component or not target_version or task.tool_name not in ("web_search", "github_search"):
+                continue
+            by_subject.setdefault(f"{component}:{target_version}", {})[task.tool_name] = (task, result)
+
+        research_items = state.memory_working.get("compatibility_research_items", {})
+        for key, tools_done in by_subject.items():
+            if "web_search" not in tools_done or "github_search" not in tools_done:
+                continue  # 아직 둘 다 안 끝남 — 다음 배치에서 다시 검사한다
+            verify_subject_key = f"llm_verify_compatibility:{key}"
+            if any(t.subject_key == verify_subject_key for t in state.plan):
+                continue  # 이미 재검증 Task를 만들었음 (중복 방지)
+            item = research_items.get(key)
+            if not item:
+                continue
+
+            evidence = []
+            for tool_name, (_, result) in tools_done.items():
+                evidence.extend(e.model_dump(mode="json") for e in result.evidence)
+
+            anchor_task_id = tools_done["web_search"][0].id
+            anchor_obs = next((o for o in observations if o.task_id == anchor_task_id), None)
+            if anchor_obs is None:
+                continue
+            anchor_obs.requires_further_investigation = True
+            anchor_obs.follow_up_hint = {
+                "kind": "llm_verify_compatibility",
+                "component": item["component"],
+                "current_version": item.get("current_version"),
+                "rag_judgments": item.get("rag_judgments", []),
+                "evidence": evidence[:10],
+                "verify_subject_key": verify_subject_key,
+            }
 
     def _apply_rules(self, task: Task, result: ToolResult, obs: Observation, state: AgentState) -> None:
         if result.not_configured or not result.ok:
@@ -125,15 +176,33 @@ class Observer:
         picked = unresolved[: max(0, _MAX_EXTERNAL_RESEARCH_ITEMS - _MIN_SECOND_OPINION_SLOTS)]
         picked += resolved[: _MAX_EXTERNAL_RESEARCH_ITEMS - len(picked)]
 
-        items = [
-            {
-                "component": r["component"],
+        # 컴포넌트별로 upgrade_path 전 구간(1.33~1.37 등)의 RAG 판정을 전부 모아둔다 —
+        # web_search 질의문에 전체 경로를 명시하고, 나중에 LLM 재검증 단계에서
+        # "기존 판정"으로 그대로 넘겨주기 위함이다 (RAG가 이미 판정한 버전도
+        # 웹 근거로 다시 검증하고, RAG에 없는 버전은 이 결과로 채워 넣는다).
+        rows_by_component: dict[str, list[dict]] = {}
+        for r in results:
+            rows_by_component.setdefault(r["component"], []).append(r)
+
+        items = []
+        research_items = state.memory_working.setdefault("compatibility_research_items", {})
+        for r in picked:
+            component = r["component"]
+            resolved_target_version = target_version or r.get("target_kubernetes_version")
+            item = {
+                "component": component,
                 "current_version": r.get("current_version"),
                 # 대표 row가 아니라 항상 최종 목표 버전을 조사 질의에 쓴다.
-                "target_version": target_version or r.get("target_kubernetes_version"),
+                "target_version": resolved_target_version,
+                "rag_judgments": [
+                    {"target_kubernetes_version": row["target_kubernetes_version"], "status": row["status"], "reason": row.get("reason")}
+                    for row in rows_by_component.get(component, [])
+                ],
             }
-            for r in picked
-        ]
+            items.append(item)
+            # LLM 재검증 Task(Section 6)를 만들 때 이 정보가 다시 필요하므로 미리 저장한다.
+            research_items[f"{component}:{resolved_target_version}"] = item
+
         obs.follow_up_hint = {"kind": "external_research", "reason": "compatibility", "items": items}
 
     def _flag_unresolved_deprecated_apis(self, result: ToolResult, state: AgentState, obs: Observation) -> None:
